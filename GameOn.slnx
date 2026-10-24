@@ -1,5 +1,3 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/GameOn/GameOn.csproj" />
-  </Folder>
+  <Project Path="GameOn/GameOn.csproj" />
 </Solution>
