@@ -1,5 +1,8 @@
-﻿public enum Role
+﻿namespace GameOn.Models
 {
-    EMPLOYEE,
-    ADMIN
+    public enum Role
+    {
+        EMPLOYEE,
+        ADMIN
+    }
 }

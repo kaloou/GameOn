@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GameOn.Models
 {
-    internal enum Difficulty
+    public enum Difficulty
     {
         EASY,
         MEDIUM,

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GameOn.Models
 {
-    internal class Game
+    public class Game
     {
         private int gameId;
         private string name = string.Empty;

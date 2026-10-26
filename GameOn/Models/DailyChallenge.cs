@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GameOn.Models
 {
-    internal class DailyChallenge
+    public class DailyChallenge
     {
         private int challengeId;
         private DateTime date;

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace GameOn.Models
 {
-    internal class Department
+    public class Department
     {
 		private int departmentId;
 

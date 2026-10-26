@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GameOn.Models
 {
-    internal class Company
+    public class Company
     {
 		private int companyId;
 

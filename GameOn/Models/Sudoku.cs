@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GameOn.Models
 {
-    internal class Sudoku : Game
+    public class Sudoku : Game
     {
         private int beginTime { get; set; }
         private int endTime { get; set; }

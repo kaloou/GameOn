@@ -5,7 +5,7 @@ using System.Windows.Controls.Primitives;
 
 namespace GameOn.Models
 {
-    internal enum Status
+    public enum Status
     {
         // Status when the game was started by the employee
         STARTED,
