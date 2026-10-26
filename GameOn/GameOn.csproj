@@ -9,8 +9,4 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
 </Project>
