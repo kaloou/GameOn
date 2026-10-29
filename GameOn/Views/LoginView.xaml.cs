@@ -11,7 +11,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace GameOn.views
+namespace GameOn.Views
 {
     /// <summary>
     /// Logique d'interaction pour LoginView.xaml
