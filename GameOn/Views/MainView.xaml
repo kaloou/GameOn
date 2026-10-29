@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:GameOn.Views"
         xmlns:vm="clr-namespace:GameOn.ViewModels"
         mc:Ignorable="d"
+        Background="#0F1E2B"
         Title="GameOn" Height="720" Width="1200"
         WindowStartupLocation="CenterScreen">
 
@@ -26,7 +27,49 @@
         <DataTemplate DataType="{x:Type vm:LeaderboardViewModel}">
             <local:LeaderboardView/>
         </DataTemplate>
+
+
+        <!-- style minimal des liens de la barre, à remplacer par l'équipe UI -->
+        <Style x:Key="LienNav" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="Gray"/>
+            <Setter Property="Margin" Value="10,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
     </Window.Resources>
 
-    <ContentControl Content="{Binding CurrentViewModel}"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- BARRE DU HAUT COMMUNE -->
+        <Border Grid.Row="0" BorderBrush="#1F3142" BorderThickness="0,0,0,1">
+            <DockPanel Margin="60,0" LastChildFill="False">
+                
+                <Button DockPanel.Dock="Left" Style="{StaticResource LienNav}" 
+                        Command="{Binding AccueilCommande}"
+                        Content="GAME ON" FontWeight="Bold" FontSize="16"/>
+                
+                <Button DockPanel.Dock="Left" Style="{StaticResource LienNav}"
+                        Command="{Binding JeuxCommande}" Content="Games"/>
+                
+                <Button DockPanel.Dock="Left" Style="{StaticResource LienNav}"
+                        Command="{Binding ClassementCommande}" Content="Leaderboard"/>
+
+                <Button DockPanel.Dock="Left" Style="{StaticResource LienNav}"
+                        Content="Hall of Fame" IsEnabled="False" Foreground="Gray"/>
+
+                <Button DockPanel.Dock="Right" Command="{Binding ConnexionCommande}"
+                        Content="Login" Padding="15,5" VerticalAlignment="Center"/>
+            </DockPanel>
+        </Border>
+
+        <!-- ÉCRAN COURANT -->
+        <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}"/>
+    </Grid>
+    
 </Window>

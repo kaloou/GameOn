@@ -11,7 +11,7 @@
 
 
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="Leaderboard" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+        <TextBlock Text="Leaderboard" Foreground="White" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,30"/>
         
         <Button Content="Retour à l'accueil" Command="{Binding RetourCommande}" Width="200" Margin="5"/>
     </StackPanel>

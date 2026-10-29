@@ -7,15 +7,15 @@ namespace GameOn.ViewModels
 {
     public class HomeViewModel : BaseViewModel
     {
+        public RelaisCommande VoirJeuxCommande { get; }
         public RelaisCommande JouerCommande { get; }
         public RelaisCommande ClassementCommande { get; }
-        public RelaisCommande DeconnexionCommande { get; }
 
-        public HomeViewModel(Action jouer, Action classement, Action deconnexion)
+        public HomeViewModel(Action voirJeux, Action jouer, Action voirClassement)
         {
+            VoirJeuxCommande = new RelaisCommande(voirJeux);
             JouerCommande = new RelaisCommande(jouer);
-            ClassementCommande = new RelaisCommande(classement);
-            DeconnexionCommande = new RelaisCommande(deconnexion);
+            ClassementCommande = new RelaisCommande(voirClassement);
         }
     }
 }

@@ -10,7 +10,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="Login" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+        <TextBlock Text="Login" Foreground="White" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,30"/>
 
         <!--A remplacer par UI -->
         <Button Content="Se connecter" Command="{Binding ConnexionCommande}" Width="200" Margin="5"/>
