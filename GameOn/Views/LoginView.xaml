@@ -4,9 +4,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GameOn.Views"
+             xmlns:vm="clr-namespace:GameOn.ViewModels"
              mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=vm:LoginViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
-    </Grid>
+    
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="Login" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+
+        <!--A remplacer par UI -->
+        <Button Content="Se connecter" Command="{Binding ConnexionCommande}" Width="200" Margin="5"/>
+        <Button Content="Inscription" Command="{Binding InscriptionCommande}" Width="200" Margin="5"/>
+    </StackPanel>
 </UserControl>

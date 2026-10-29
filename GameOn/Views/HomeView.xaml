@@ -4,9 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GameOn.Views"
+             xmlns:vm="clr-namespace:GameOn.ViewModels"
+             d:DataContext="{d:DesignInstance Type=vm:HomeViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
-    </Grid>
+
+
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="Home" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+ 
+        <Button Content="Jouer" Command="{Binding JouerCommande}" Width="200" Margin="5"/>
+        <Button Content="Classement" Command="{Binding ClassementCommande}" Width="200" Margin="5"/>
+        <Button Content="Déconnexion" Command="{Binding DeconnexionCommande}" Width="200" Margin="5"/>
+    </StackPanel>
 </UserControl>
