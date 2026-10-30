@@ -13,5 +13,7 @@
         <TextBlock Text="Game" Foreground="White" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,30"/>
         
         <Button Content="Retour à l'accueil" Command="{Binding RetourCommande}" Width="200" Margin="5"/>
+
+        <Button Content="Sudoku" Command="{Binding JouerCommande}" Width="200" Margin="5"/>
     </StackPanel>
 </UserControl>
