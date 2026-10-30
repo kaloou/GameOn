@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Data;
 using System.Windows;
+using DotNetEnv;
 
 namespace GameOn;
 
@@ -9,5 +10,9 @@ namespace GameOn;
 /// </summary>
 public partial class App : Application
 {
+    public App()
+    {
+        Env.Load();
+    }
 }
 
