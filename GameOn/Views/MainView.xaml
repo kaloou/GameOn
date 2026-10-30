@@ -27,6 +27,9 @@
         <DataTemplate DataType="{x:Type vm:LeaderboardViewModel}">
             <local:LeaderboardView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SudokuViewModel}">
+            <local:SudokuView/>
+        </DataTemplate>
 
 
         <!-- style minimal des liens de la barre, à remplacer par l'équipe UI -->
