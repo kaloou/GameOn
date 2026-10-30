@@ -9,11 +9,13 @@ namespace GameOn.ViewModels
     {
 
         public RelaisCommande RetourCommande { get; }
+        public RelaisCommande JouerCommande { get; }
 
-        public GameViewModel(Action retour)
+        public GameViewModel(Action retour, Action jouer)
         {
             RetourCommande = new RelaisCommande(retour);
-        }
+            JouerCommande = new RelaisCommande(jouer);
 
+        }
     }
 }
