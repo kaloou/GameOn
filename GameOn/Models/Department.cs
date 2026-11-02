@@ -14,7 +14,7 @@ namespace GameOn.Models
 			get { return departmentId; }
             set
             {
-                if (value <= 0)
+                if (value < 0)
                 {
                     throw new ArgumentOutOfRangeException("The departmentId can't be negative or equal to zero !");
                 }
@@ -37,12 +37,22 @@ namespace GameOn.Models
             }
         }
 
-        private Company company;
+        // Clé étrangère vers la compagnie
+        public int CompanyId { get; set; }
+
+        private Company company = null!;
+
 
         public Company Company
         {
             get { return company; }
         }
+
+        public List<Employee> Employees { get; set; } = new();
+
+        public Department()
+        {
+        }   
 
 
         public Department(int departmentId, string name, Company company)

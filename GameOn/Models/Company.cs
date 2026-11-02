@@ -13,7 +13,7 @@ namespace GameOn.Models
 			get { return companyId; }
 			set
 			{
-				if (value <= 0)
+				if (value < 0)
 				{
 					throw new ArgumentOutOfRangeException("The companyId can't be negative or equal to zero !");
 				}

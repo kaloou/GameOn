@@ -11,12 +11,19 @@ namespace GameOn.Models
         public string GameData { get; set; } = string.Empty;
         public Difficulty Difficulty { get; set; }
         public DateTime StartedAt { get; set; }
-        public DateTime CompletedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
         public Status Status { get; set; }
 
         public int EmployeeId { get; set; }
+        public Employee Employee { get; set; } = null!;
 
-        public List<GameScore> GameScores { get; set; } = new();
+        public int GameId { get; set; }
+        public Game Game { get; set; } = null!;
+
+        public int? DailyChallengeId { get; set; }
+        public DailyChallenge? DailyChallenge { get; set; }
+
+        public GameScore? GameScore { get; set; }
 
         public GameSession(int sessionId, string gameData,
                    Difficulty difficulty, DateTime startedAt,

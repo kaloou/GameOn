@@ -35,6 +35,15 @@ namespace GameOn.Models
 			set { points = value; }
 		}
 
+        public int EmployeeId { get; set; }
+        public Employee Employee { get; set; } = null!;
+
+        public int GameId { get; set; }
+        public Game Game { get; set; } = null!;
+
+        public int GameSessionId { get; set; }
+        public GameSession GameSession { get; set; } = null!;
+
         public GameScore(int scoreId, int weekNb, DateTime date, int points)
         {
             ScoreId = scoreId;

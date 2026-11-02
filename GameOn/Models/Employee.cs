@@ -14,6 +14,9 @@ namespace GameOn.Models
         public string Password { get; set; } = string.Empty;
         public Role Role { get; set; }
 
+        public int DepartmentId { get; set; }
+        public Department Department { get; set; } = null!;
+
         public List<int> Preferences { get; set; } = new();
 
         public List<GameSession> GameSessions { get; set; } = new();

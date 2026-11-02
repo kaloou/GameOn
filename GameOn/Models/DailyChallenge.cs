@@ -29,6 +29,12 @@ namespace GameOn.Models
                 : throw new ArgumentException("ChallengeData cannot be null or empty");
         }
 
+        // Le Sudoku du défi
+        public int SudokuId { get; set; }
+        public Sudoku Sudoku { get; set; } = null!;
+
+        public List<GameSession> GameSessions { get; set; } = new();
+
         public DailyChallenge(int challengeId, DateTime date, string challengeData)
         {
             ChallengeId = challengeId;
