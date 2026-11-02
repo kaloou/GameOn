@@ -8,7 +8,7 @@ namespace GameOn.Models
 {
     internal class SudokuCell : INotifyPropertyChanged
     {
-        // Valeur de la case (entre 0 et 9), avec 0 qui est la valeur de celule vide
+        // Valeur de la case (entre 1 et 9)
         private int cellValue;
 
 		public int CellValue
@@ -16,9 +16,9 @@ namespace GameOn.Models
 			get { return cellValue; }
 			set
 			{
-				if (value < 0 || value >= 10)
+				if (value <= 0 || value >= 10)
 				{
-					throw new ArgumentOutOfRangeException("The cell value must be between 0 and 9, with 0 who's is only the blank value !");
+					throw new ArgumentOutOfRangeException("The cell value must be between 1 and 9 !");
 				}
 
 				if (value != cellValue)
