@@ -51,7 +51,7 @@ public class SudokuEngineTests
     [Fact]
     public void JsonToList_ApiResponse_ReturnsNineByNineGrid()
     {
-        var grid = engine.JsonToList(ApiResponse);
+        var grid = engine.JsonToList(ApiResponse, "puzzle");
 
         Assert.Equal(9, grid.GetLength(0));
         Assert.Equal(9, grid.GetLength(1));
@@ -60,7 +60,7 @@ public class SudokuEngineTests
     [Fact]
     public void JsonToList_NullCell_BecomesZero()
     {
-        var grid = engine.JsonToList(ApiResponse);
+        var grid = engine.JsonToList(ApiResponse, "puzzle");
 
         Assert.Equal(0, grid[0, 2]);
     }

@@ -8,19 +8,28 @@ namespace GameOn.Games.Sudoku;
 
 public class SudokuEngine
 {
-    public async Task<int[,]> GenerateSudokuPuzzleAsync(Difficulty difficulty)
+    public async Task<int[,]> GetSudokuBaseGridAsync(Difficulty difficulty)
     {
         var apiResponse = await SudokuApi.GetSudokuPuzzleAsync(difficulty);
 
-        var sudoku_grid = JsonToList(apiResponse);
-        
+        var sudoku_grid = JsonToList(apiResponse, "puzzle");
+
         return sudoku_grid;
     }
     
-    public int [,] JsonToList(string json)
+    public async Task<int[,]> GetSudokuSolutionGridAsync(Difficulty difficulty)
+    {
+        var apiResponse = await SudokuApi.GetSudokuPuzzleAsync(difficulty);
+
+        var sudoku_grid = JsonToList(apiResponse, "solution");
+
+        return sudoku_grid;
+    }
+    
+    public int [,] JsonToList(string json, string property)
     {
         using var document = JsonDocument.Parse(json);
-        var root = document.RootElement;
+        var root = document.RootElement.GetProperty(property);
 
         var sudoku_grid = new int[9, 9];
 
