@@ -17,7 +17,7 @@ namespace GameOn.Data
         public DbSet<GameScore> GameScores => Set<GameScore>();
         public DbSet<DailyChallenge> DailyChallenges => Set<DailyChallenge>();
 
-        // Version de MySQL détectée une seule fois (évite une requête à chaque création du contexte)
+        // évite une requête à chaque création du contexte
         private static ServerVersion? _versionServeur;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
