@@ -20,7 +20,8 @@ public class SudokuEngine
     public int [,] JsonToList(string json)
     {
         using var document = JsonDocument.Parse(json);
-        var root = document.RootElement;
+        // Modification apportée : récupération uniquement de la grille "puzzle" du JSON renvoyé par l'API, sans la solution
+        var root = document.RootElement.GetProperty("puzzle");
 
         var sudoku_grid = new int[9, 9];
 

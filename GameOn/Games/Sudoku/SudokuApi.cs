@@ -16,7 +16,8 @@ namespace GameOn.Games.Sudoku
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Failed to get Sudoku puzzle: {response.ReasonPhrase}");
+                string error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to get Sudoku puzzle: {error}");
             }
             
             return await response.Content.ReadAsStringAsync();

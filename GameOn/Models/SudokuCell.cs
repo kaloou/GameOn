@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Windows;
 
 namespace GameOn.Models
 {
-    internal class SudokuCell : INotifyPropertyChanged
+    public class SudokuCell : INotifyPropertyChanged
     {
         // Valeur de la case (entre 0 et 9), avec 0 uniquement comme valeur de case vide
         private int cellValue;
@@ -107,13 +108,16 @@ namespace GameOn.Models
 			set { isEditable = value; }
 		}
 
+		// Évènement qui permet de notifier l'interface lorsqu'une propriété est modifiée (en l'occurence, la valeur de la cellule)
 		public event PropertyChangedEventHandler? PropertyChanged;
 
-		protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        // Méthode qui permet de déclancher l'évènement PropertyChanged pour la propriété concernée (en l'occurence, la valeur de la cellule)
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
+		// Valeur affichée dans la grille (les cases 0 sont vides)
 		public string DisplayValue
 		{
 			get
@@ -122,6 +126,21 @@ namespace GameOn.Models
 			}
 		}
 
+		// Épaisseur des bordures, configurée pour séparer les blocs de 3 x 3
+		public Thickness BorderThickness
+		{
+			get
+			{
+				return new Thickness(
+					Column % 3 == 0 ? 3 : 1, // Bordure de gauche
+					Row % 3 == 0 ? 3 : 1,    // Bordure du haut
+					1,                       // Bordure de droite
+					1                        // Bordure du bas
+				);
+			}
+		}
+
+		// Constructeur d'une case
         public SudokuCell(int cellValue, int row, int column, bool isEditable)
         {
             CellValue = cellValue;

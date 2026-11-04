@@ -11,7 +11,7 @@
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock Text="Sudoku" Foreground="White" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,30"/>
 
-            <ItemsControl ItemsSource="{Binding cells}"
+            <ItemsControl ItemsSource="{Binding Cells}"
                           Width="450"
                           Height="450">
                 <ItemsControl.ItemsPanel>
@@ -24,7 +24,8 @@
                     <DataTemplate>
                         <Border BorderBrush="Black"
                                 BorderThickness="{Binding BorderThickness}">
-                            <TextBox Text="{Binding DisplayValue}"
+                            <TextBox Text="{Binding DisplayValue, Mode=OneWay}"
+                                     IsReadOnly="True"
                                      Foreground="Black"
                                      MaxLength="1"
                                      FontSize="22"
@@ -38,7 +39,7 @@
             </ItemsControl>
             
             <Button Content="Retour à Games"
-                    Command="{Binding RetourCommande}"
+                    Command="{Binding BackCommand}"
                     Width="200"
                     Margin="5"/>
         </StackPanel>
