@@ -8,7 +8,7 @@ namespace GameOn.Models
 {
     internal class SudokuCell : INotifyPropertyChanged
     {
-        // Valeur de la case (entre 1 et 9)
+        // Valeur de la case (entre 0 et 9), avec 0 uniquement comme valeur de case vide
         private int cellValue;
 
 		public int CellValue
@@ -16,15 +16,16 @@ namespace GameOn.Models
 			get { return cellValue; }
 			set
 			{
-				if (value <= 0 || value >= 10)
+				if (value < 0 || value >= 10)
 				{
-					throw new ArgumentOutOfRangeException("The cell value must be between 1 and 9 !");
+					throw new ArgumentOutOfRangeException("The cell value must be between 0 and 9, with 0 only for the empty cells !");
 				}
 
 				if (value != cellValue)
 				{
                     cellValue = value;
 					OnPropertyChanged();
+					OnPropertyChanged(nameof(DisplayValue));
                 }
 			}
 		}
@@ -68,7 +69,7 @@ namespace GameOn.Models
 
 		public int BlockRow
 		{
-			get { return row; }
+			get { return blockRow; }
 			set
 			{
                 if (value < 0 || value > 2)
@@ -76,7 +77,7 @@ namespace GameOn.Models
                     throw new ArgumentOutOfRangeException("The block row of the cell must be between 0 and 2 !");
                 }
 
-                row = value;
+                blockRow = value;
 			}
 		}
 
@@ -85,7 +86,7 @@ namespace GameOn.Models
 
 		public int BlockColumn
 		{
-			get { return column; }
+			get { return blockColumn; }
 			set
 			{
                 if (value < 0 || value > 2)
@@ -93,7 +94,7 @@ namespace GameOn.Models
                     throw new ArgumentOutOfRangeException("The block column of the cell must be between 0 and 2 !");
                 }
 
-                column = value;
+                blockColumn = value;
 			}
 		}
 
@@ -106,23 +107,29 @@ namespace GameOn.Models
 			set { isEditable = value; }
 		}
 
-		
-
-        public SudokuCell(int cellValue, int row, int column, bool isEditable)
-        {
-			CellValue = cellValue;
-			Row = row;
-			Column = column;
-			IsEditable = isEditable;
-			BlockRow = Row / 3;
-			BlockColumn = Column / 3;
-        }
-
 		public event PropertyChangedEventHandler? PropertyChanged;
 
 		protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
+
+		public string DisplayValue
+		{
+			get
+			{
+				return CellValue == 0 ? "" : CellValue.ToString();
+			}
+		}
+
+        public SudokuCell(int cellValue, int row, int column, bool isEditable)
+        {
+            CellValue = cellValue;
+            Row = row;
+            Column = column;
+            IsEditable = isEditable;
+            BlockRow = Row / 3;
+            BlockColumn = Column / 3;
+        }
     }
 }
