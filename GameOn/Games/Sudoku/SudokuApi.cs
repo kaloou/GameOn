@@ -26,9 +26,12 @@ namespace GameOn.Games.Sudoku
             string json = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-                throw new HttpRequestException($"API Sudoku : {(int)response.StatusCode} {json}", null, response.StatusCode);
-
-            return json;
-        }       
+            {
+                string error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to get Sudoku puzzle: {error}");
+            }
+            
+            return await response.Content.ReadAsStringAsync();
+        }
     }
 }
