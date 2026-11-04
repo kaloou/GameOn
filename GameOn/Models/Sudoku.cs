@@ -6,6 +6,8 @@ namespace GameOn.Models
 {
     public class Sudoku : Game
     {
+        public List<DailyChallenge> DailyChallenges { get; set; } = new();
+
         private int beginTime { get; set; }
         private int endTime { get; set; }
         private Difficulty difficulty { get; set; }
@@ -26,6 +28,7 @@ namespace GameOn.Models
             get => difficulty;
             set => difficulty = value;
         }
+
 
         public Sudoku(int beginTime, int endTime, int gameId, string name, string description, string rules) : base(gameId, name, description, rules)
         {
