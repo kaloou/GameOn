@@ -36,7 +36,7 @@ namespace GameOn.ViewModels
         {
             try
             {
-                int[,] grid = await sudokuEngine.GenerateSudokuPuzzleAsync(Difficulty.EASY);
+                int[,] grid = await sudokuEngine.GetSudokuBaseGridAsync(Difficulty.EASY);
                 Cells.Clear();
 
                 for (int row = 0; row < 9; row++)

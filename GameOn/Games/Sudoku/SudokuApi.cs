@@ -5,14 +5,25 @@ namespace GameOn.Games.Sudoku
 {
     public static class SudokuApi
     {
+        private static readonly HttpClient client = new HttpClient();
+        private static readonly string? apiKey = Environment.GetEnvironmentVariable("API_NINJAS_KEY");
+
+        static SudokuApi()
+        {
+            
+            client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+        }
+        
         public static async Task<string> GetSudokuPuzzleAsync(Difficulty difficulty)
         {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("X-Api-Key", Environment.GetEnvironmentVariable("API_NINJAS_KEY"));
+            if (string.IsNullOrEmpty(apiKey))
+                throw new InvalidOperationException("Clé API manquante : ajoute API_NINJAS_KEY dans le fichier .env");
 
-            string difficultyString = difficulty.ToString().ToLower();
+            int seed = DateTime.Today.Year * 1000 + DateTime.Today.DayOfYear;
 
-            var response = await client.GetAsync($"https://api.api-ninjas.com/v1/sudokugenerate?difficulty={difficultyString}&width=3&height=3");
+            string url = $"https://api.api-ninjas.com/v1/sudokugenerate?difficulty={difficulty.ToString().ToLower()}&width=3&height=3&seed={seed}";
+            using var response = await client.GetAsync(url);
+            string json = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
@@ -24,5 +35,3 @@ namespace GameOn.Games.Sudoku
         }
     }
 }
-
-
