@@ -56,6 +56,12 @@ namespace GameOn.Data
                 e.HasIndex(x => x.Email).IsUnique();
             });
 
+            modelBuilder.Entity<Company>(c =>
+            {
+                c.Property(x => x.Domain).HasMaxLength(255);
+                c.HasIndex(x => x.Domain).IsUnique();
+            });
+
             // Point 4 : Preferences (List<int>) stockée en texte "1,3,5"
             modelBuilder.Entity<Employee>()
                 .Property(e => e.Preferences)
@@ -75,6 +81,9 @@ namespace GameOn.Data
             {
                 cle.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+            SeedData.Appliquer(modelBuilder);
+
         }
     }
 }
