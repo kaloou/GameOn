@@ -1,4 +1,5 @@
 ﻿using GameOn.Commande;
+using GameOn.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,7 +18,9 @@ namespace GameOn.ViewModels
         public LeaderboardViewModel LeaderboardVM { get; }
         public SudokuViewModel SudokuVM { get; }
 
+        public SessionService Session { get; } = new SessionService();
 
+        public RelaisCommande DeconnexionCommande { get; }
         public RelaisCommande AccueilCommande { get; }
         public RelaisCommande JeuxCommande { get; }
         public RelaisCommande ClassementCommande { get; }
@@ -66,6 +69,12 @@ namespace GameOn.ViewModels
             ClassementCommande = new RelaisCommande(() => CurrentViewModel = LeaderboardVM);
             ConnexionCommande = new RelaisCommande(() => CurrentViewModel = LoginVM);
             SudokuCommande = new RelaisCommande(() => CurrentViewModel = SudokuVM);
+
+            DeconnexionCommande = new RelaisCommande(() =>
+            {
+                Session.Fermer();
+                CurrentViewModel = HomeVM;
+            });
 
 
             _currentViewModel = HomeVM;
