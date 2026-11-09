@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameOn.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
@@ -22,5 +23,12 @@ namespace GameOn.Views
         {
             InitializeComponent();
         }
+
+        private void MotDePasse_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is LoginViewModel vm)
+                vm.MotDePasse = ((PasswordBox)sender).Password;
+        }
+
     }
 }
