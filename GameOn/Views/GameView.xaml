@@ -64,14 +64,32 @@
                 <!-- BATTLE ROBOT : à venir -->
                 <Border Style="{StaticResource CarteJeu}" Child="{StaticResource BadgeAVenir}">
                     <Border.Background>
-                        <ImageBrush ImageSource="/Assets/images/BattleRobotBanner.png" Stretch="UniformToFill"/>
+                        <!-- grisé : jeu pas encore disponible -->
+                        <ImageBrush Stretch="UniformToFill" Opacity="0.5">
+                            <ImageBrush.ImageSource>
+                                <FormatConvertedBitmap DestinationFormat="Gray8">
+                                    <FormatConvertedBitmap.Source>
+                                        <BitmapImage UriSource="/Assets/images/BattleRobotBanner.png"/>
+                                    </FormatConvertedBitmap.Source>
+                                </FormatConvertedBitmap>
+                            </ImageBrush.ImageSource>
+                        </ImageBrush>
                     </Border.Background>
                 </Border>
 
                 <!-- GTA : à venir -->
                 <Border Style="{StaticResource CarteJeu}" Child="{StaticResource BadgeAVenir}">
                     <Border.Background>
-                        <ImageBrush ImageSource="/Assets/images/GTA6Banner.jpg" Stretch="UniformToFill"/>
+                        <!-- grisé : jeu pas encore disponible -->
+                        <ImageBrush Stretch="UniformToFill" Opacity="0.5">
+                            <ImageBrush.ImageSource>
+                                <FormatConvertedBitmap DestinationFormat="Gray8">
+                                    <FormatConvertedBitmap.Source>
+                                        <BitmapImage UriSource="/Assets/images/GTA6Banner.jpg"/>
+                                    </FormatConvertedBitmap.Source>
+                                </FormatConvertedBitmap>
+                            </ImageBrush.ImageSource>
+                        </ImageBrush>
                     </Border.Background>
                 </Border>
             </WrapPanel>
