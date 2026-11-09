@@ -27,7 +27,7 @@ namespace GameOn.Data
             };
             modelBuilder.Entity<Models.Company>().HasData(compagnies);
 
-            // Chaque compagnie reçoit les 5 départements (Id 1 à 15)
+            // Chaque compagnie reçoit les 5 départements
             var departements = new List<object>();
             int id = 1;
             foreach (var compagnie in compagnies)
