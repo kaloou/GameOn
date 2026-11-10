@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
+using System.Windows.Documents;
 
 namespace GameOn.Models
 {
@@ -124,6 +125,17 @@ namespace GameOn.Models
 			{
 				return CellValue == 0 ? "" : CellValue.ToString();
 			}
+			set
+			{
+				if (int.TryParse(value, out int result))
+				{
+					CellValue = result;
+				}
+				else if (string.IsNullOrEmpty(value))
+				{
+					CellValue = 0;
+				}
+			}
 		}
 
 		// Épaisseur des bordures, configurée pour séparer les blocs de 3 x 3
@@ -137,6 +149,15 @@ namespace GameOn.Models
 					1,                       // Bordure de droite
 					1                        // Bordure du bas
 				);
+			}
+		}
+
+		// Épaisseur des chiffres (en gras, s'il s'agit d'une case modifiable 0)
+		public FontWeight IsBold
+		{
+			get
+			{
+				return CellValue != 0 ? FontWeights.Bold : FontWeights.Normal;
 			}
 		}
 

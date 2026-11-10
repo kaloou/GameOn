@@ -5,15 +5,59 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GameOn.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="Sudoku" Foreground="White" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+
+    <UserControl.Resources>
+        <Style x:Key="CircularButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="45"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Background" Value="Gray"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="23">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="NumberButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="55"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="FontSize" Value="26"/>
+            <Setter Property="Foreground" Value="Blue"/>
+            <Setter Property="Background" Value="AliceBlue"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid HorizontalAlignment="Center"
+          VerticalAlignment="Center">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="40"/>
+            <ColumnDefinition Width="220"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Grille de sudoku -->
+        <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="Sudoku"
+                       Foreground="White"
+                       FontSize="40"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,30"/>
 
             <ItemsControl ItemsSource="{Binding Cells}"
-                          Width="450"
-                          Height="450">
+                          Width="700"
+                          Height="700">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <UniformGrid Rows="9" Columns="9"/>
@@ -24,14 +68,18 @@
                     <DataTemplate>
                         <Border BorderBrush="Black"
                                 BorderThickness="{Binding BorderThickness}">
-                            <TextBox Text="{Binding DisplayValue, Mode=OneWay}"
-                                     IsReadOnly="True"
-                                     Foreground="Black"
+                            <TextBox Text="{Binding DisplayValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{Binding IsEditable}"
+                                     GotFocus="TextBox_GotFocus"
+                                     PreviewTextInput="TextBox_PreviewTextInput"
                                      MaxLength="1"
-                                     FontSize="22"
+                                     FontSize="30"
+                                     Foreground="Black"
+                                     FontWeight="{Binding IsBold}"
+                                     Background="White"
                                      TextAlignment="Center"
-                                     VerticalContentAlignment="Center"
-                                     Background="White"/>
+                                     VerticalContentAlignment="Center">
+                            </TextBox>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -41,7 +89,80 @@
             <Button Content="Retour à Games"
                     Command="{Binding BackCommand}"
                     Width="200"
-                    Margin="5"/>
+                    Margin="15"/>
+        </StackPanel>
+
+        <!-- Panneau latéral (avec clavier et boutons) -->
+        <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="190">
+            
+            <!-- Chronomètre -->
+            <TextBlock Text="00:00"
+                       FontSize="32"
+                       Foreground="White"
+                       FontWeight="ExtraBold"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,25"/>
+
+            <!-- Boutons des fonctionnalités -->
+            <UniformGrid Columns="4"
+                         Margin="0,0,0,25">
+                <Button IsEnabled="False"
+                        Style="{StaticResource CircularButtonStyle}">
+                    <materialDesign:PackIcon
+                        Kind="Undo"
+                        Width="22"
+                        Height="22"
+                        Foreground="DarkRed"/>
+                </Button>
+                
+                <Button IsEnabled="False"
+                        Style="{StaticResource CircularButtonStyle}">
+                    <materialDesign:PackIcon
+                        Kind="Eraser"
+                        Width="22"
+                        Height="22"/>
+                </Button>
+                
+                <Button IsEnabled="False"
+                        Style="{StaticResource CircularButtonStyle}">
+                    <materialDesign:PackIcon
+                        Kind="Pencil"
+                        Width="22"
+                        Height="22"/>
+                </Button>
+                
+                <Button IsEnabled="False"
+                        Style="{StaticResource CircularButtonStyle}">
+                    <materialDesign:PackIcon
+                        Kind="LightbulbOutline"
+                        Width="22"
+                        Height="22"/>
+                </Button>
+            </UniformGrid>
+
+            <!-- Clavier -->
+            <UniformGrid Rows="3"
+                         Columns="3"
+                         Margin="0,0,0,25">
+                <Button Content="1" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="2" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="3" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="4" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="5" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="6" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="7" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="8" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="9" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+            </UniformGrid>
+            
+            <!-- Confirmation -->
+            <Button Content="Confirmer"
+                    Height="50"
+                    FontSize="15"
+                    Foreground="White"
+                    FontWeight="{Binding IsBold}"
+                    Background="Gray"/>
+
         </StackPanel>
     </Grid>
 </UserControl>

@@ -9,6 +9,7 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
+<<<<<<< HEAD
   <ItemGroup>
     <PackageReference Include="DotNetEnv" Version="3.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.22">
@@ -17,6 +18,11 @@
     </PackageReference>
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
     <Resource Include="Assets\**\*" />
+=======
+  <ItemGroup>
+    <PackageReference Include="DotNetEnv" Version="3.2.0" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.4.0" />
+>>>>>>> efd8bd0 (Add: grayed-out default sukohu cells, possibility to add values in the grid, values keyboard (functional) and options buttons (unfunctional))
   </ItemGroup>
 
 </Project>
