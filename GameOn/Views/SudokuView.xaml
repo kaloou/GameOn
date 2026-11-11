@@ -5,15 +5,105 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GameOn.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="Sudoku" Foreground="White" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+
+    <UserControl.Resources>
+        <Style x:Key="CircularButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="45"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Background" Value="Gray"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="23">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="NumberButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="55"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="FontSize" Value="26"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#1A2A3A"/>
+            <Setter Property="BorderBrush" Value="#1A2A3E"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="SudokuAnswerStyle" TargetType="TextBox">
+            <Setter Property="Visibility" Value="Visible"/>
+
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsEditable}" Value="True"/>
+                        <Condition Binding="{Binding DataContext.IsNoteMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
+
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="SudokuNotesStyle" TargetType="ItemsControl">
+            <Setter Property="Visibility" Value="Collapsed"/>
+
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsEditable}" Value="True"/>
+                        <Condition Binding="{Binding DataContext.IsNoteMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
+
+                    <Setter Property="Visibility" Value="Visible"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SudokuNoteStyle" TargetType="TextBlock">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsVisible}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid HorizontalAlignment="Center"
+          VerticalAlignment="Center">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="40"/>
+            <ColumnDefinition Width="220"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Grille de sudoku -->
+        <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="Sudoku"
+                       Foreground="White"
+                       FontSize="40"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,30"/>
 
             <ItemsControl ItemsSource="{Binding Cells}"
-                          Width="450"
-                          Height="450">
+                          Width="700"
+                          Height="700">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <UniformGrid Rows="9" Columns="9"/>
@@ -24,14 +114,37 @@
                     <DataTemplate>
                         <Border BorderBrush="Black"
                                 BorderThickness="{Binding BorderThickness}">
-                            <TextBox Text="{Binding DisplayValue, Mode=OneWay}"
-                                     IsReadOnly="True"
-                                     Foreground="Black"
-                                     MaxLength="1"
-                                     FontSize="22"
-                                     TextAlignment="Center"
-                                     VerticalContentAlignment="Center"
-                                     Background="White"/>
+                            <Grid>
+                                <TextBox Text="{Binding DisplayValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource SudokuAnswerStyle}"
+                                         IsEnabled="{Binding IsEditable}"
+                                         GotFocus="TextBox_GotFocus"
+                                         PreviewTextInput="TextBox_PreviewTextInput"
+                                         MaxLength="1"
+                                         FontSize="30"
+                                         FontWeight="{Binding IsBold}"
+                                         Foreground="Black"
+                                         Background="White"
+                                         TextAlignment="Center"
+                                         VerticalContentAlignment="Center">
+                                </TextBox>
+
+                                <ItemsControl ItemsSource="{Binding Notes}"
+                                              Style="{StaticResource SudokuNotesStyle}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Rows="3" Columns="3"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding NoteValue}"
+                                                       Style="{StaticResource SudokuNoteStyle}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -41,7 +154,91 @@
             <Button Content="Retour à Games"
                     Command="{Binding BackCommand}"
                     Width="200"
-                    Margin="5"/>
+                    Margin="15"/>
+        </StackPanel>
+
+        <!-- Panneau latéral (avec clavier et boutons) -->
+        <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="190">
+            
+            <!-- Chronomètre -->
+            <TextBlock Text="00:00"
+                       FontSize="32"
+                       FontWeight="ExtraBold"
+                       Foreground="White"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,25"/>
+
+            <!-- Boutons des fonctionnalités -->
+            <UniformGrid Columns="4"
+                         Margin="0,0,0,25">
+                <Button x:Name="ResetGrid_Button"
+                        Click="ResetGrid_Button_Click"
+                        Style="{StaticResource CircularButtonStyle}"
+                        Background="LightCoral">
+                    <materialDesign:PackIcon
+                        Kind="Undo"
+                        Width="22"
+                        Height="22"
+                        Foreground="DarkRed"/>
+                </Button>
+                
+                <Button x:Name="EraseCell_Button"
+                        Click="EraseCell_Button_Click"
+                        Style="{StaticResource CircularButtonStyle}"
+                        Background="Gold">
+                    <materialDesign:PackIcon
+                        Kind="Eraser"
+                        Width="22"
+                        Height="22"
+                        Foreground="DarkOrange"/>
+                </Button>
+                
+                <Button x:Name="SwitchNoteMode"
+                        Click="SwitchNoteMode_Click"
+                        Style="{StaticResource CircularButtonStyle}">
+                    <materialDesign:PackIcon
+                        Kind="Pencil"
+                        Width="22"
+                        Height="22"/>
+                </Button>
+                
+                <Button x:Name="GiveCellAnswer"
+                        Click="GiveCellAnswer_Click"
+                        Style="{StaticResource CircularButtonStyle}"
+                        Background="LightGreen">
+                    <materialDesign:PackIcon
+                        Kind="LightbulbOutline"
+                        Width="22"
+                        Height="22"
+                        Foreground="DarkOliveGreen"/>
+                </Button>
+            </UniformGrid>
+
+            <!-- Clavier -->
+            <UniformGrid Rows="3"
+                         Columns="3"
+                         Margin="0,0,0,25">
+                <Button Content="1" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="2" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="3" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="4" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="5" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="6" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="7" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="8" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+                <Button Content="9" Style="{StaticResource NumberButtonStyle}" Click="Button_Click"/>
+            </UniformGrid>
+            
+            <!-- Confirmation -->
+            <Button x:Name="ConfirmGrid_Button"
+                    Click="ConfirmGrid_Button_Click"
+                    Content="Confirmer"
+                    Height="50"
+                    FontSize="15"
+                    FontWeight="{Binding IsBold}"
+                    Foreground="White"
+                    Background="#F5B83D"/>
+
         </StackPanel>
     </Grid>
 </UserControl>
