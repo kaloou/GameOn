@@ -8,7 +8,7 @@ namespace GameOn.Services
 {
     public class SessionService : BaseViewModel
     {
-            {
+
         private Employee? _utilisateur;
 
         public Employee? Utilisateur
