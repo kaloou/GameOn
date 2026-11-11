@@ -30,13 +30,41 @@ namespace GameOn.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("CompanyId"));
 
+                    b.Property<string>("Domain")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("CompanyId");
 
+                    b.HasIndex("Domain")
+                        .IsUnique();
+
                     b.ToTable("Companies");
+
+                    b.HasData(
+                        new
+                        {
+                            CompanyId = 1,
+                            Domain = "hourglass.test",
+                            Name = "Hourglass Unlimited"
+                        },
+                        new
+                        {
+                            CompanyId = 2,
+                            Domain = "math.test",
+                            Name = "Mathieu Tech"
+                        },
+                        new
+                        {
+                            CompanyId = 3,
+                            Domain = "bbk.test",
+                            Name = "edgardCoorp Tech"
+                        });
                 });
 
             modelBuilder.Entity("GameOn.Models.DailyChallenge", b =>
@@ -84,6 +112,98 @@ namespace GameOn.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("Departments");
+
+                    b.HasData(
+                        new
+                        {
+                            DepartmentId = 1,
+                            CompanyId = 1,
+                            Name = "Gestion de projet"
+                        },
+                        new
+                        {
+                            DepartmentId = 2,
+                            CompanyId = 1,
+                            Name = "Analyse d'affaires"
+                        },
+                        new
+                        {
+                            DepartmentId = 3,
+                            CompanyId = 1,
+                            Name = "Analyse d'applications"
+                        },
+                        new
+                        {
+                            DepartmentId = 4,
+                            CompanyId = 1,
+                            Name = "Développement"
+                        },
+                        new
+                        {
+                            DepartmentId = 5,
+                            CompanyId = 1,
+                            Name = "Assurance qualité"
+                        },
+                        new
+                        {
+                            DepartmentId = 6,
+                            CompanyId = 2,
+                            Name = "Gestion de projet"
+                        },
+                        new
+                        {
+                            DepartmentId = 7,
+                            CompanyId = 2,
+                            Name = "Analyse d'affaires"
+                        },
+                        new
+                        {
+                            DepartmentId = 8,
+                            CompanyId = 2,
+                            Name = "Analyse d'applications"
+                        },
+                        new
+                        {
+                            DepartmentId = 9,
+                            CompanyId = 2,
+                            Name = "Développement"
+                        },
+                        new
+                        {
+                            DepartmentId = 10,
+                            CompanyId = 2,
+                            Name = "Assurance qualité"
+                        },
+                        new
+                        {
+                            DepartmentId = 11,
+                            CompanyId = 3,
+                            Name = "Gestion de projet"
+                        },
+                        new
+                        {
+                            DepartmentId = 12,
+                            CompanyId = 3,
+                            Name = "Analyse d'affaires"
+                        },
+                        new
+                        {
+                            DepartmentId = 13,
+                            CompanyId = 3,
+                            Name = "Analyse d'applications"
+                        },
+                        new
+                        {
+                            DepartmentId = 14,
+                            CompanyId = 3,
+                            Name = "Développement"
+                        },
+                        new
+                        {
+                            DepartmentId = 15,
+                            CompanyId = 3,
+                            Name = "Assurance qualité"
+                        });
                 });
 
             modelBuilder.Entity("GameOn.Models.Employee", b =>
@@ -94,7 +214,7 @@ namespace GameOn.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("EmployeeId"));
 
-                    b.Property<int>("DepartmentId")
+                    b.Property<int?>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
@@ -292,8 +412,7 @@ namespace GameOn.Migrations
                     b.HasOne("GameOn.Models.Department", "Department")
                         .WithMany("Employees")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Department");
                 });
