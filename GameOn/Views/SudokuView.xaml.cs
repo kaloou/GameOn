@@ -1,4 +1,5 @@
 ﻿using GameOn.Models;
+using GameOn.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -53,6 +54,46 @@ namespace GameOn.Views
             if (sender is Button button && int.TryParse(button.Content?.ToString(), out int number))
             {
                 selectedCell.CellValue = number;
+            }
+        }
+
+        // Suppression de l'intégralité des valeurs insérées par le joueur dans la grille
+        private void ResetGrid_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel)
+            {
+                foreach (SudokuCell cell in viewModel.Cells)
+                {
+                    if (cell.IsEditable)
+                    {
+                        cell.CellValue = 0;
+                    }
+                }
+            }
+        }
+
+        // Suppression de la valeur insérée par le joueur dans la case sélectionnée
+        private void EraseCell_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedCell != null && selectedCell.IsEditable)
+            {
+                selectedCell.CellValue = 0;
+            }
+        }
+
+        // Confirmation de la grille (détermine si les valeurs insérées par le joueur sont les bonnes)
+        private void ConfirmGrid_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel)
+            {
+                if (viewModel.IsGridValid())
+                {
+                    MessageBox.Show("Félicitations ! Grille validée !");
+                }
+                else
+                {
+                    MessageBox.Show("Grille invalide !");
+                }
             }
         }
     }

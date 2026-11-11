@@ -33,9 +33,11 @@
             <Setter Property="Height" Value="55"/>
             <Setter Property="Margin" Value="3"/>
             <Setter Property="FontSize" Value="26"/>
-            <Setter Property="Foreground" Value="Blue"/>
-            <Setter Property="Background" Value="AliceBlue"/>
-            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#1A2A3A"/>
+            <Setter Property="BorderBrush" Value="#1A2A3E"/>
+            <Setter Property="BorderThickness" Value="1"/>
         </Style>
     </UserControl.Resources>
     
@@ -74,8 +76,8 @@
                                      PreviewTextInput="TextBox_PreviewTextInput"
                                      MaxLength="1"
                                      FontSize="30"
-                                     Foreground="Black"
                                      FontWeight="{Binding IsBold}"
+                                     Foreground="Black"
                                      Background="White"
                                      TextAlignment="Center"
                                      VerticalContentAlignment="Center">
@@ -98,16 +100,18 @@
             <!-- Chronomètre -->
             <TextBlock Text="00:00"
                        FontSize="32"
-                       Foreground="White"
                        FontWeight="ExtraBold"
+                       Foreground="White"
                        HorizontalAlignment="Center"
                        Margin="0,0,0,25"/>
 
             <!-- Boutons des fonctionnalités -->
             <UniformGrid Columns="4"
                          Margin="0,0,0,25">
-                <Button IsEnabled="False"
-                        Style="{StaticResource CircularButtonStyle}">
+                <Button x:Name="ResetGrid_Button"
+                        Click="ResetGrid_Button_Click"
+                        Style="{StaticResource CircularButtonStyle}"
+                        Background="LightCoral">
                     <materialDesign:PackIcon
                         Kind="Undo"
                         Width="22"
@@ -115,12 +119,15 @@
                         Foreground="DarkRed"/>
                 </Button>
                 
-                <Button IsEnabled="False"
-                        Style="{StaticResource CircularButtonStyle}">
+                <Button x:Name="EraseCell_Button"
+                        Click="EraseCell_Button_Click"
+                        Style="{StaticResource CircularButtonStyle}"
+                        Background="PapayaWhip">
                     <materialDesign:PackIcon
                         Kind="Eraser"
                         Width="22"
-                        Height="22"/>
+                        Height="22"
+                        Foreground="DarkOrange"/>
                 </Button>
                 
                 <Button IsEnabled="False"
@@ -156,12 +163,14 @@
             </UniformGrid>
             
             <!-- Confirmation -->
-            <Button Content="Confirmer"
+            <Button x:Name="ConfirmGrid_Button"
+                    Click="ConfirmGrid_Button_Click"
+                    Content="Confirmer"
                     Height="50"
                     FontSize="15"
-                    Foreground="White"
                     FontWeight="{Binding IsBold}"
-                    Background="Gray"/>
+                    Foreground="White"
+                    Background="#F5B83D"/>
 
         </StackPanel>
     </Grid>

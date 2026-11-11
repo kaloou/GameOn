@@ -19,6 +19,9 @@ namespace GameOn.ViewModels
         // Commande qui permet de revenir à la page d'accueil des jeux
         public RelaisCommande BackCommand { get; }
 
+        // Propriété qui stocke la solution du Sudoku
+        private int[,]? solutionGrid;
+
         // Initialisation des cases, du moteur sudoku et de la commande de retour
         public SudokuViewModel(Action retour)
         {
@@ -28,15 +31,17 @@ namespace GameOn.ViewModels
             BackCommand = new RelaisCommande(retour);
 
             // Chargement de la grille du sudoku
-            _ = LoadSudokuAsync();
+            _ = LoadSudokuAsync(Difficulty.EASY);
         }
 
         // Récupèration de la grille depuis le moteur Sudoku
-        public async Task LoadSudokuAsync()
+        public async Task LoadSudokuAsync(Difficulty difficulty)
         {
             try
             {
-                int[,] grid = await sudokuEngine.GetSudokuBaseGridAsync(Difficulty.EASY);
+                int[,] grid = await sudokuEngine.GetSudokuBaseGridAsync(difficulty);
+                int[,] solution = await sudokuEngine.GetSudokuSolutionGridAsync(difficulty);
+                solutionGrid = solution;
                 Cells.Clear();
 
                 for (int row = 0; row < 9; row++)
@@ -54,6 +59,27 @@ namespace GameOn.ViewModels
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Erreur dans l'affichage du Sudoku : {ex.Message}");
+            }
+        }
+
+        // Vérification de la validité de la grille
+        public bool IsGridValid()
+        {
+            if (solutionGrid == null || Cells.Count != 81)
+            {
+                return false;
+            }
+            else
+            {
+                foreach (SudokuCell cell in Cells)
+                {
+                    if (cell.CellValue != solutionGrid[cell.Row, cell.Column])
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
             }
         }
     }
