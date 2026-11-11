@@ -8,12 +8,20 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=vm:LoginViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
-    
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="Login" Foreground="White" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,30"/>
 
-        <!--A remplacer par UI -->
-        <Button Content="Se connecter" Command="{Binding ConnexionCommande}" Width="200" Margin="5"/>
-        <Button Content="Inscription" Command="{Binding InscriptionCommande}" Width="200" Margin="5"/>
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
+        <TextBlock Text="Login" FontSize="40" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+
+        <!-- TEMP : champs provisoires, à remplacer par l'équipe UI -->
+        <TextBlock Text="Courriel" Foreground="White"/>
+        <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,15"/>
+
+        <TextBlock Text="Mot de passe" Foreground="White"/>
+        <PasswordBox PasswordChanged="MotDePasse_PasswordChanged" Margin="0,5,0,15"/>
+
+        <TextBlock Text="{Binding MessageErreur}" Foreground="#FF6B6B" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+        <Button Content="Se connecter" Command="{Binding ConnexionCommande}" Padding="8" Margin="0,5"/>
+        <Button Content="Inscription" Command="{Binding InscriptionCommande}" Padding="8" Margin="0,5"/>
     </StackPanel>
 </UserControl>

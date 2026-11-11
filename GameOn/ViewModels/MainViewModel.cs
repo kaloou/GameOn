@@ -9,6 +9,7 @@ namespace GameOn.ViewModels
     public class MainViewModel : BaseViewModel
     {
 
+        private readonly AuthService _auth = new AuthService();
         private BaseViewModel _currentViewModel;
 
         public LoginViewModel LoginVM { get; }
@@ -45,10 +46,16 @@ namespace GameOn.ViewModels
         {
 
             LoginVM = new LoginViewModel(
-                allerInscription: () => CurrentViewModel = RegisterVM,
-                seConnecter: () => CurrentViewModel = HomeVM);
+                        _auth,
+                        Session,
+                        allerInscription: () => CurrentViewModel = RegisterVM,
+                        connexionReussie: () => CurrentViewModel = HomeVM);
 
-            RegisterVM = new RegisterViewModel(retour: () => CurrentViewModel = LoginVM);
+            RegisterVM = new RegisterViewModel(
+                        _auth,
+                        Session,
+                        retour: () => CurrentViewModel = LoginVM,
+                        inscriptionReussie: () => CurrentViewModel = HomeVM);
 
             HomeVM = new HomeViewModel(
                 voirJeux: () => CurrentViewModel = GameVM,

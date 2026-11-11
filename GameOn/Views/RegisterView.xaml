@@ -7,11 +7,34 @@
              xmlns:vm="clr-namespace:GameOn.ViewModels"
              d:DataContext="{d:DesignInstance Type=vm:RegisterViewModel}"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="550" d:DesignWidth="800">
 
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="Register" Foreground="White" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,30"/>
-        
-        <Button Content="Retour" Command="{Binding RetourCommande}" Width="200" Margin="5"/>
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
+        <TextBlock Text="Register" FontSize="40" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+        <TextBlock Text="Courriel professionnel" Foreground="White"/>
+        <TextBox Text="{Binding Email}" Margin="0,5,0,5"/>
+        <TextBlock Text="{Binding NomCompagnie}" Foreground="#8AD48A" Margin="0,0,0,15"/>
+
+        <TextBlock Text="Département" Foreground="White"/>
+        <ComboBox ItemsSource="{Binding Departements}" DisplayMemberPath="Name"
+              SelectedItem="{Binding DepartementChoisi}" Margin="0,5,0,15"/>
+
+        <TextBlock Text="Prénom" Foreground="White"/>
+        <TextBox Text="{Binding Prenom, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,15"/>
+
+        <TextBlock Text="Nom" Foreground="White"/>
+        <TextBox Text="{Binding Nom, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,15"/>
+
+        <TextBlock Text="Mot de passe (8 caractères min.)" Foreground="White"/>
+        <PasswordBox PasswordChanged="MotDePasse_PasswordChanged" Margin="0,5,0,15"/>
+
+        <TextBlock Text="Confirmer le mot de passe" Foreground="White"/>
+        <PasswordBox PasswordChanged="Confirmation_PasswordChanged" Margin="0,5,0,15"/>
+
+        <TextBlock Text="{Binding MessageErreur}" Foreground="#FF6B6B" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+        <Button Content="Créer mon compte" Command="{Binding InscrireCommande}" Padding="8" Margin="0,5"/>
+        <Button Content="Retour" Command="{Binding RetourCommande}" Padding="8" Margin="0,5"/>
     </StackPanel>
 </UserControl>

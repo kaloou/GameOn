@@ -7,7 +7,7 @@
         xmlns:vm="clr-namespace:GameOn.ViewModels"
         mc:Ignorable="d"
         Background="#0F1E2B"
-        Title="GameOn" Height="720" Width="1200"
+        Title="GameOn" Height="750" Width="1200"
         WindowStartupLocation="CenterScreen">
 
 
