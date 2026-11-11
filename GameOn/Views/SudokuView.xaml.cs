@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GameOn.Models.Sudoku;
+using GameOn.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
@@ -18,9 +20,117 @@ namespace GameOn.Views
     /// </summary>
     public partial class SudokuView : UserControl
     {
+
+        private SudokuCell? selectedCell;
+
         public SudokuView()
         {
             InitializeComponent();
+        }
+
+        // Autorisation des valeurs 1 à 9 uniquement
+        private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !(e.Text[0] >= '1' && e.Text[0] <= '9');
+        }
+
+        // Récupération de la case sélectionnée pour le clavier
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                selectedCell = textBox.DataContext as SudokuCell;
+            }
+        }
+
+        // Insertion d'une valeur dans la case sélectionnée
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedCell != null && selectedCell.IsEditable)
+            {
+                if (sender is Button button && int.TryParse(button.Content?.ToString(), out int number))
+                {
+                    if (DataContext is SudokuViewModel viewModel)
+                    {
+                        if (viewModel.IsNoteMode)
+                        {
+                            viewModel.ManageNote(selectedCell, number);
+                        }
+                        else
+                        {
+                            selectedCell.CellValue = number;
+
+                            foreach (SudokuNote note in selectedCell.Notes)
+                            {
+                                note.IsVisible = false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Suppression de l'intégralité des valeurs insérées par le joueur dans la grille
+        private void ResetGrid_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel && !viewModel.IsNoteMode)
+            {
+                foreach (SudokuCell cell in viewModel.Cells)
+                {
+                    if (cell.IsEditable)
+                    {
+                        cell.CellValue = 0;
+                    }
+                }
+            }
+        }
+
+        // Suppression de la valeur insérée par le joueur dans la case sélectionnée
+        private void EraseCell_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel && !viewModel.IsNoteMode)
+            {
+                if (selectedCell != null && selectedCell.IsEditable)
+                {
+                    selectedCell.CellValue = 0;
+                }
+            }
+        }
+
+        // Confirmation de la grille (détermine si les valeurs insérées par le joueur sont les bonnes)
+        private void ConfirmGrid_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel && !viewModel.IsNoteMode)
+            {
+                if (viewModel.IsGridValid())
+                {
+                    MessageBox.Show("Félicitations ! Grille validée !");
+                }
+                else
+                {
+                    MessageBox.Show("Grille invalide !");
+                }
+            }
+        }
+
+        // Affichage de la réponse de la case sélectionnée par le joueur (uniquement disponible pour le mode Casual en production)
+        private void GiveCellAnswer_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel && !viewModel.IsNoteMode)
+            {
+                if (selectedCell != null && selectedCell.IsEditable)
+                {
+                    selectedCell.CellValue = viewModel.GiveCellAnswer(selectedCell);
+                }
+            }
+        }
+
+        private void SwitchNoteMode_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel)
+            {
+                viewModel.SwitchNoteMode();
+            }
         }
     }
 }

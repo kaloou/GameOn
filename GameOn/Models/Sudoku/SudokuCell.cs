@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
+using System.Windows.Documents;
 
-namespace GameOn.Models
+namespace GameOn.Models.Sudoku
 {
     public class SudokuCell : INotifyPropertyChanged
     {
@@ -108,6 +110,15 @@ namespace GameOn.Models
 			set { isEditable = value; }
 		}
 
+		// Collection qui contient les 9 notes possibles (valeurs 1 à 9)
+		private ObservableCollection<SudokuNote> notes;
+
+		public ObservableCollection<SudokuNote> Notes
+		{
+			get { return notes; }
+		}
+
+
 		// Évènement qui permet de notifier l'interface lorsqu'une propriété est modifiée (en l'occurence, la valeur de la cellule)
 		public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -123,6 +134,17 @@ namespace GameOn.Models
 			get
 			{
 				return CellValue == 0 ? "" : CellValue.ToString();
+			}
+			set
+			{
+				if (int.TryParse(value, out int result))
+				{
+					CellValue = result;
+				}
+				else if (string.IsNullOrEmpty(value))
+				{
+					CellValue = 0;
+				}
 			}
 		}
 
@@ -140,6 +162,15 @@ namespace GameOn.Models
 			}
 		}
 
+		// Épaisseur des chiffres (en gras, s'il s'agit d'une case modifiable 0)
+		public FontWeight IsBold
+		{
+			get
+			{
+				return CellValue != 0 ? FontWeights.Bold : FontWeights.Normal;
+			}
+		}
+
 		// Constructeur d'une case
         public SudokuCell(int cellValue, int row, int column, bool isEditable)
         {
@@ -149,6 +180,12 @@ namespace GameOn.Models
             IsEditable = isEditable;
             BlockRow = Row / 3;
             BlockColumn = Column / 3;
+
+			notes = new ObservableCollection<SudokuNote>();
+			for (int i = 1; i < 9; i++)
+			{
+				notes.Add(new SudokuNote(i));
+			}
         }
     }
 }
