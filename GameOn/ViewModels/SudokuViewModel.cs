@@ -1,6 +1,7 @@
 ﻿using GameOn.Commande;
 using GameOn.Games.Sudoku;
 using GameOn.Models;
+using GameOn.Models.Sudoku;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,8 +20,27 @@ namespace GameOn.ViewModels
         // Commande qui permet de revenir à la page d'accueil des jeux
         public RelaisCommande BackCommand { get; }
 
-        // Propriété qui stocke la solution du Sudoku
+        // Tableau qui stocke la solution du Sudoku
         private int[,]? solutionGrid;
+
+        // Booléen qui définit si la grille de sudoku est en mode notes ou pas
+        private bool isNoteMode;
+
+        public bool IsNoteMode
+        {
+            get
+            {
+                return isNoteMode;
+            }
+            set
+            {
+                if (isNoteMode != value)
+                {
+                    isNoteMode = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         // Initialisation des cases, du moteur sudoku et de la commande de retour
         public SudokuViewModel(Action retour)
@@ -80,6 +100,34 @@ namespace GameOn.ViewModels
                 }
 
                 return true;
+            }
+        }
+
+        // Retourne la réponse de la case sélectionnée par le joueur (uniquement disponible pour le mode Casual en production)
+        public int GiveCellAnswer(SudokuCell selectedCell)
+        {
+            if (solutionGrid == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return solutionGrid[selectedCell.Row, selectedCell.Column];
+            }
+        }
+
+        // Changement du mode (notes ou pas)
+        public void SwitchNoteMode()
+        {
+            IsNoteMode = !IsNoteMode;
+        }
+
+        public void ManageNote(SudokuCell cell, int value)
+        {
+            if (cell.IsEditable && value >= 1 && value <= 9)
+            {
+                SudokuNote note = cell.Notes[value - 1];
+                note.IsVisible = !note.IsVisible;
             }
         }
     }

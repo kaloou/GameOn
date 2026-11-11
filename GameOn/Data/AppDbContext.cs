@@ -1,5 +1,6 @@
 ﻿using DotNetEnv;
 using GameOn.Models;
+using GameOn.Models.Sudoku;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 

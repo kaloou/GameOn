@@ -1,4 +1,4 @@
-﻿using GameOn.Models;
+﻿using GameOn.Models.Sudoku;
 using GameOn.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -46,21 +46,34 @@ namespace GameOn.Views
         // Insertion d'une valeur dans la case sélectionnée
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (selectedCell == null || !selectedCell.IsEditable)
+            if (selectedCell != null && selectedCell.IsEditable)
             {
-                return;
-            }
+                if (sender is Button button && int.TryParse(button.Content?.ToString(), out int number))
+                {
+                    if (DataContext is SudokuViewModel viewModel)
+                    {
+                        if (viewModel.IsNoteMode)
+                        {
+                            viewModel.ManageNote(selectedCell, number);
+                        }
+                        else
+                        {
+                            selectedCell.CellValue = number;
 
-            if (sender is Button button && int.TryParse(button.Content?.ToString(), out int number))
-            {
-                selectedCell.CellValue = number;
+                            foreach (SudokuNote note in selectedCell.Notes)
+                            {
+                                note.IsVisible = false;
+                            }
+                        }
+                    }
+                }
             }
         }
 
         // Suppression de l'intégralité des valeurs insérées par le joueur dans la grille
         private void ResetGrid_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is SudokuViewModel viewModel)
+            if (DataContext is SudokuViewModel viewModel && !viewModel.IsNoteMode)
             {
                 foreach (SudokuCell cell in viewModel.Cells)
                 {
@@ -75,16 +88,19 @@ namespace GameOn.Views
         // Suppression de la valeur insérée par le joueur dans la case sélectionnée
         private void EraseCell_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (selectedCell != null && selectedCell.IsEditable)
+            if (DataContext is SudokuViewModel viewModel && !viewModel.IsNoteMode)
             {
-                selectedCell.CellValue = 0;
+                if (selectedCell != null && selectedCell.IsEditable)
+                {
+                    selectedCell.CellValue = 0;
+                }
             }
         }
 
         // Confirmation de la grille (détermine si les valeurs insérées par le joueur sont les bonnes)
         private void ConfirmGrid_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is SudokuViewModel viewModel)
+            if (DataContext is SudokuViewModel viewModel && !viewModel.IsNoteMode)
             {
                 if (viewModel.IsGridValid())
                 {
@@ -94,6 +110,26 @@ namespace GameOn.Views
                 {
                     MessageBox.Show("Grille invalide !");
                 }
+            }
+        }
+
+        // Affichage de la réponse de la case sélectionnée par le joueur (uniquement disponible pour le mode Casual en production)
+        private void GiveCellAnswer_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel && !viewModel.IsNoteMode)
+            {
+                if (selectedCell != null && selectedCell.IsEditable)
+                {
+                    selectedCell.CellValue = viewModel.GiveCellAnswer(selectedCell);
+                }
+            }
+        }
+
+        private void SwitchNoteMode_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel)
+            {
+                viewModel.SwitchNoteMode();
             }
         }
     }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GameOn.Models
+namespace GameOn.Models.Sudoku
 {
     public class Sudoku : Game
     {

@@ -28,7 +28,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
         <Style x:Key="NumberButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="55"/>
             <Setter Property="Margin" Value="3"/>
@@ -38,6 +38,50 @@
             <Setter Property="Background" Value="#1A2A3A"/>
             <Setter Property="BorderBrush" Value="#1A2A3E"/>
             <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="SudokuAnswerStyle" TargetType="TextBox">
+            <Setter Property="Visibility" Value="Visible"/>
+
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsEditable}" Value="True"/>
+                        <Condition Binding="{Binding DataContext.IsNoteMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
+
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="SudokuNotesStyle" TargetType="ItemsControl">
+            <Setter Property="Visibility" Value="Collapsed"/>
+
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsEditable}" Value="True"/>
+                        <Condition Binding="{Binding DataContext.IsNoteMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
+
+                    <Setter Property="Visibility" Value="Visible"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SudokuNoteStyle" TargetType="TextBlock">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsVisible}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
     </UserControl.Resources>
     
@@ -70,18 +114,37 @@
                     <DataTemplate>
                         <Border BorderBrush="Black"
                                 BorderThickness="{Binding BorderThickness}">
-                            <TextBox Text="{Binding DisplayValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     IsEnabled="{Binding IsEditable}"
-                                     GotFocus="TextBox_GotFocus"
-                                     PreviewTextInput="TextBox_PreviewTextInput"
-                                     MaxLength="1"
-                                     FontSize="30"
-                                     FontWeight="{Binding IsBold}"
-                                     Foreground="Black"
-                                     Background="White"
-                                     TextAlignment="Center"
-                                     VerticalContentAlignment="Center">
-                            </TextBox>
+                            <Grid>
+                                <TextBox Text="{Binding DisplayValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource SudokuAnswerStyle}"
+                                         IsEnabled="{Binding IsEditable}"
+                                         GotFocus="TextBox_GotFocus"
+                                         PreviewTextInput="TextBox_PreviewTextInput"
+                                         MaxLength="1"
+                                         FontSize="30"
+                                         FontWeight="{Binding IsBold}"
+                                         Foreground="Black"
+                                         Background="White"
+                                         TextAlignment="Center"
+                                         VerticalContentAlignment="Center">
+                                </TextBox>
+
+                                <ItemsControl ItemsSource="{Binding Notes}"
+                                              Style="{StaticResource SudokuNotesStyle}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Rows="3" Columns="3"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding NoteValue}"
+                                                       Style="{StaticResource SudokuNoteStyle}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -122,7 +185,7 @@
                 <Button x:Name="EraseCell_Button"
                         Click="EraseCell_Button_Click"
                         Style="{StaticResource CircularButtonStyle}"
-                        Background="PapayaWhip">
+                        Background="Gold">
                     <materialDesign:PackIcon
                         Kind="Eraser"
                         Width="22"
@@ -130,7 +193,8 @@
                         Foreground="DarkOrange"/>
                 </Button>
                 
-                <Button IsEnabled="False"
+                <Button x:Name="SwitchNoteMode"
+                        Click="SwitchNoteMode_Click"
                         Style="{StaticResource CircularButtonStyle}">
                     <materialDesign:PackIcon
                         Kind="Pencil"
@@ -138,12 +202,15 @@
                         Height="22"/>
                 </Button>
                 
-                <Button IsEnabled="False"
-                        Style="{StaticResource CircularButtonStyle}">
+                <Button x:Name="GiveCellAnswer"
+                        Click="GiveCellAnswer_Click"
+                        Style="{StaticResource CircularButtonStyle}"
+                        Background="LightGreen">
                     <materialDesign:PackIcon
                         Kind="LightbulbOutline"
                         Width="22"
-                        Height="22"/>
+                        Height="22"
+                        Foreground="DarkOliveGreen"/>
                 </Button>
             </UniformGrid>
 

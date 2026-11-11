@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Documents;
 
-namespace GameOn.Models
+namespace GameOn.Models.Sudoku
 {
     public class SudokuCell : INotifyPropertyChanged
     {
@@ -109,6 +110,15 @@ namespace GameOn.Models
 			set { isEditable = value; }
 		}
 
+		// Collection qui contient les 9 notes possibles (valeurs 1 à 9)
+		private ObservableCollection<SudokuNote> notes;
+
+		public ObservableCollection<SudokuNote> Notes
+		{
+			get { return notes; }
+		}
+
+
 		// Évènement qui permet de notifier l'interface lorsqu'une propriété est modifiée (en l'occurence, la valeur de la cellule)
 		public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -170,6 +180,12 @@ namespace GameOn.Models
             IsEditable = isEditable;
             BlockRow = Row / 3;
             BlockColumn = Column / 3;
+
+			notes = new ObservableCollection<SudokuNote>();
+			for (int i = 1; i < 9; i++)
+			{
+				notes.Add(new SudokuNote(i));
+			}
         }
     }
 }
