@@ -6,6 +6,7 @@ namespace GameOn.Models
 {
     public enum Difficulty
     {
+        CASUAL,
         EASY,
         MEDIUM,
         HARD,

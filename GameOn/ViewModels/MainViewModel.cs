@@ -1,8 +1,11 @@
 ﻿using GameOn.Commande;
+using GameOn.Models.Sudoku;
 using GameOn.Services;
+using GameOn.Views;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows;
 
 namespace GameOn.ViewModels
 {
@@ -17,7 +20,7 @@ namespace GameOn.ViewModels
         public HomeViewModel HomeVM { get; }
         public GameViewModel GameVM { get; }
         public LeaderboardViewModel LeaderboardVM { get; }
-        public SudokuViewModel SudokuVM { get; }
+        public SudokuViewModel? SudokuVM { get; private set; }
 
         public SessionService Session { get; } = new SessionService();
 
@@ -59,23 +62,21 @@ namespace GameOn.ViewModels
 
             HomeVM = new HomeViewModel(
                 voirJeux: () => CurrentViewModel = GameVM,
-                jouer: () => CurrentViewModel = SudokuVM,
+                jouer: StartSudoku,
                 voirClassement: () => CurrentViewModel = LeaderboardVM);
 
 
             GameVM = new GameViewModel( 
                 retour: () => CurrentViewModel = HomeVM,
-                jouer: () => CurrentViewModel = SudokuVM);
+                jouer: StartSudoku);
 
             LeaderboardVM = new LeaderboardViewModel( retour: () => CurrentViewModel = HomeVM);
-
-            SudokuVM = new SudokuViewModel(retour: () => CurrentViewModel = HomeVM);
 
             AccueilCommande = new RelaisCommande(() => CurrentViewModel = HomeVM);
             JeuxCommande = new RelaisCommande(() => CurrentViewModel = GameVM);
             ClassementCommande = new RelaisCommande(() => CurrentViewModel = LeaderboardVM);
             ConnexionCommande = new RelaisCommande(() => CurrentViewModel = LoginVM);
-            SudokuCommande = new RelaisCommande(() => CurrentViewModel = SudokuVM);
+            SudokuCommande = new RelaisCommande(StartSudoku);
 
             DeconnexionCommande = new RelaisCommande(() =>
             {
@@ -86,6 +87,21 @@ namespace GameOn.ViewModels
 
             _currentViewModel = HomeVM;
         }
+
+        // Lancement du Sudoku après sélection de la difficulté
+        private void StartSudoku()
+        {
+            DifficultyWindow window = new DifficultyWindow();
+            window.Owner = Application.Current.MainWindow;
+
+            if (window.ShowDialog() == true)
+            {
+                SudokuVM = new SudokuViewModel(retour: () => CurrentViewModel = HomeVM, difficulty: window.SelectedDifficulty);
+                OnPropertyChanged(nameof(SudokuVM));
+                CurrentViewModel = SudokuVM;
+            }
+        }
+
 
 
 
