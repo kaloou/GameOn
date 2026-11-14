@@ -5,6 +5,7 @@ using GameOn.Models.Sudoku;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Text;
 
 namespace GameOn.ViewModels
@@ -62,6 +63,11 @@ namespace GameOn.ViewModels
                 int[,] grid = await sudokuEngine.GetSudokuBaseGridAsync(difficulty);
                 int[,] solution = await sudokuEngine.GetSudokuSolutionGridAsync(difficulty);
                 solutionGrid = solution;
+                
+                foreach (SudokuCell cell in Cells)
+                {
+                    cell.PropertyChanged -= Cell_PropertyChanged;
+                }
                 Cells.Clear();
 
                 for (int row = 0; row < 9; row++)
@@ -72,6 +78,7 @@ namespace GameOn.ViewModels
                         bool isEditable = value == 0;
 
                         SudokuCell cell = new SudokuCell(value, row, col, isEditable);
+                        cell.PropertyChanged += Cell_PropertyChanged;
                         Cells.Add(cell);
                     }
                 }
@@ -103,6 +110,15 @@ namespace GameOn.ViewModels
             }
         }
 
+        // Vérifie que la grille est bien chargée et complète
+        public bool IsGridComplete
+        {
+            get
+            {
+                return Cells.Count == 81 && Cells.All(c => c.CellValue != 0);
+            }
+        }
+
         // Retourne la réponse de la case sélectionnée par le joueur (uniquement disponible pour le mode Casual en production)
         public int GiveCellAnswer(SudokuCell selectedCell)
         {
@@ -122,12 +138,42 @@ namespace GameOn.ViewModels
             IsNoteMode = !IsNoteMode;
         }
 
+        // Ajout d'une note dans une case vide (valeurs 1 à 9)
         public void ManageNote(SudokuCell cell, int value)
         {
-            if (cell.IsEditable && value >= 1 && value <= 9)
+            if (cell.IsEditable && cell.CellValue == 0 && value >= 1 && value <= 9)
             {
                 SudokuNote note = cell.Notes[value - 1];
                 note.IsVisible = !note.IsVisible;
+            }
+        }
+
+        // Actualisation de l'état du bouton "Confirmer" lorsqu'une case change
+        private void Cell_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SudokuCell.CellValue))
+            {
+                OnPropertyChanged(nameof(IsGridComplete));
+            }
+        }
+
+        // [TEMPORAIRE] Remplissage de la grille avec la solution
+        public void SolveGrid()
+        {
+            if (solutionGrid != null && Cells.Count == 81)
+            {
+                foreach (SudokuCell cell in Cells)
+                {
+                    if (cell.IsEditable)
+                    {
+                        cell.CellValue = solutionGrid[cell.Row, cell.Column];
+
+                        foreach (SudokuNote note in cell.Notes)
+                        {
+                            note.IsVisible = false;
+                        }
+                    }
+                }
             }
         }
     }
