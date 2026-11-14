@@ -44,15 +44,18 @@ namespace GameOn.ViewModels
         }
 
         // Initialisation des cases, du moteur sudoku et de la commande de retour
-        public SudokuViewModel(Action retour)
+        public SudokuViewModel(Action retour, Difficulty difficulty)
         {
             Cells = new ObservableCollection<SudokuCell>();
             sudokuEngine = new SudokuEngine();
 
-            BackCommand = new RelaisCommande(retour);
+            // Si le mode est casual, passe la difficulté en easy
+            Difficulty gridDifficulty = difficulty == Difficulty.CASUAL ? Difficulty.EASY : difficulty;
 
-            // Chargement de la grille du sudoku
-            _ = LoadSudokuAsync(Difficulty.EASY);
+            // Chargement de la grille du sudoku (avec la difficulté sélectionnée)
+            _ = LoadSudokuAsync(gridDifficulty);
+
+            BackCommand = new RelaisCommande(retour);
         }
 
         // Récupèration de la grille depuis le moteur Sudoku
