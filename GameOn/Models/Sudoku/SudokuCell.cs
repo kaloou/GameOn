@@ -29,6 +29,7 @@ namespace GameOn.Models.Sudoku
                     cellValue = value;
 					OnPropertyChanged();
 					OnPropertyChanged(nameof(DisplayValue));
+					OnPropertyChanged(nameof(IsEmpty));
                 }
 			}
 		}
@@ -148,6 +149,12 @@ namespace GameOn.Models.Sudoku
 			}
 		}
 
+		// Indique si la case est vide ou non (valeur 0)
+		public bool IsEmpty
+		{
+			get { return CellValue == 0; }
+		}
+
 		// Épaisseur des bordures, configurée pour séparer les blocs de 3 x 3
 		public Thickness BorderThickness
 		{
@@ -182,7 +189,7 @@ namespace GameOn.Models.Sudoku
             BlockColumn = Column / 3;
 
 			notes = new ObservableCollection<SudokuNote>();
-			for (int i = 1; i < 9; i++)
+			for (int i = 1; i <= 9; i++)
 			{
 				notes.Add(new SudokuNote(i));
 			}
