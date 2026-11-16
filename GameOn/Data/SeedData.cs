@@ -7,6 +7,10 @@ namespace GameOn.Data
 {
     public class SeedData
     {
+
+        // Id du jeu Sudoku dans la table Games 
+        public const int SudokuGameId = 1;
+
         private static readonly string[] NomsDepartements =
         {
             "Gestion de projet",

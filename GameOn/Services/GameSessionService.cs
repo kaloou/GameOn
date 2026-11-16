@@ -1,0 +1,53 @@
+﻿using GameOn.Data;
+using GameOn.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace GameOn.Services
+{
+    public class GameSessionService
+    {
+
+        public async Task<GameSession?> TrouverPartieDuJourAsync(int employeeId, int gameId, Difficulty difficulty)
+        {
+            DateTime debutJournee = DateTime.Today;
+            DateTime finJournee = debutJournee.AddDays(1);
+
+            using var context = new AppDbContext();
+            return await context.GameSessions
+                .AsNoTracking()
+                .Where(s => s.EmployeeId == employeeId
+                         && s.GameId == gameId
+                         && s.Difficulty == difficulty
+                         && s.Status == Status.STARTED
+                         && s.StartedAt >= debutJournee
+                         && s.StartedAt < finJournee)
+                .OrderByDescending(s => s.StartedAt)
+                .FirstOrDefaultAsync();
+        }
+
+        // Nouvelle partie, avec l'état de départ de la grille
+        public async Task<GameSession> CreerPartieAsync(int employeeId, int gameId, Difficulty difficulty, string gameData)
+        {
+            var session = new GameSession(0, gameData, difficulty, DateTime.Now, Status.STARTED)
+            {
+                EmployeeId = employeeId,
+                GameId = gameId
+            };
+
+            using var context = new AppDbContext();
+            context.GameSessions.Add(session);
+            await context.SaveChangesAsync();
+
+            return session; // SessionId est rempli par MySQL après SaveChanges
+        }
+
+        // Enregistre l'état actuel 
+        public async Task SauvegarderAsync(int sessionId, string gameData)
+        {
+            using var context = new AppDbContext();
+            await context.GameSessions
+                .Where(s => s.SessionId == sessionId && s.Status == Status.STARTED)
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.GameData, gameData));
+        }
+    }
+}
