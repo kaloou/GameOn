@@ -13,6 +13,8 @@ namespace GameOn.ViewModels
     {
 
         private readonly AuthService _auth = new AuthService();
+        private readonly GameSessionService _sessions = new GameSessionService();
+
         private BaseViewModel _currentViewModel;
 
         public LoginViewModel LoginVM { get; }
@@ -91,12 +93,22 @@ namespace GameOn.ViewModels
         // Lancement du Sudoku après sélection de la difficulté
         private void StartSudoku()
         {
+            if (!Session.EstConnecte)
+            {
+                CurrentViewModel = LoginVM;
+                return;
+            }
+
             DifficultyWindow window = new DifficultyWindow();
             window.Owner = Application.Current.MainWindow;
 
             if (window.ShowDialog() == true)
             {
-                SudokuVM = new SudokuViewModel(retour: () => CurrentViewModel = HomeVM, difficulty: window.SelectedDifficulty);
+                SudokuVM = new SudokuViewModel(
+                    retour: () => CurrentViewModel = HomeVM,
+                    difficulty: window.SelectedDifficulty,
+                    session: Session,
+                    sessions: _sessions);
                 OnPropertyChanged(nameof(SudokuVM));
                 CurrentViewModel = SudokuVM;
             }
