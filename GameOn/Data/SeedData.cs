@@ -38,6 +38,19 @@ namespace GameOn.Data
                 }
             }
             modelBuilder.Entity<Models.Department>().HasData(departements);
+
+            // Le jeu Sudoku : chaque GameSession doit être reliée à un jeu
+            modelBuilder.Entity<Models.Sudoku.Sudoku>().HasData(new
+            {
+                GameId = 1,
+                Name = "Sudoku",
+                Description = "Remplissez la grille de 9x9 avec les chiffres de 1 à 9.",
+                Rules = "Chaque ligne, chaque colonne et chaque bloc de 3x3 doit contenir les chiffres de 1 à 9 une seule fois.",
+                BeginTime = 0,
+                EndTime = 0,
+                Difficulty = Models.Difficulty.EASY
+            });
+
         }
 
 

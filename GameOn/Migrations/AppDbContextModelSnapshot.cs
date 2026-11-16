@@ -67,31 +67,6 @@ namespace GameOn.Migrations
                         });
                 });
 
-            modelBuilder.Entity("GameOn.Models.DailyChallenge", b =>
-                {
-                    b.Property<int>("ChallengeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ChallengeId"));
-
-                    b.Property<string>("ChallengeData")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("SudokuId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ChallengeId");
-
-                    b.HasIndex("SudokuId");
-
-                    b.ToTable("DailyChallenges");
-                });
-
             modelBuilder.Entity("GameOn.Models.Department", b =>
                 {
                     b.Property<int>("DepartmentId")
@@ -370,7 +345,32 @@ namespace GameOn.Migrations
                     b.ToTable("GameSessions");
                 });
 
-            modelBuilder.Entity("GameOn.Models.Sudoku", b =>
+            modelBuilder.Entity("GameOn.Models.Sudoku.DailyChallenge", b =>
+                {
+                    b.Property<int>("ChallengeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ChallengeId"));
+
+                    b.Property<string>("ChallengeData")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("SudokuId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ChallengeId");
+
+                    b.HasIndex("SudokuId");
+
+                    b.ToTable("DailyChallenges");
+                });
+
+            modelBuilder.Entity("GameOn.Models.Sudoku.Sudoku", b =>
                 {
                     b.HasBaseType("GameOn.Models.Game");
 
@@ -385,17 +385,18 @@ namespace GameOn.Migrations
                         .HasColumnType("int");
 
                     b.HasDiscriminator().HasValue("Sudoku");
-                });
 
-            modelBuilder.Entity("GameOn.Models.DailyChallenge", b =>
-                {
-                    b.HasOne("GameOn.Models.Sudoku", "Sudoku")
-                        .WithMany("DailyChallenges")
-                        .HasForeignKey("SudokuId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Sudoku");
+                    b.HasData(
+                        new
+                        {
+                            GameId = 1,
+                            Description = "Remplissez la grille de 9x9 avec les chiffres de 1 à 9.",
+                            Name = "Sudoku",
+                            Rules = "Chaque ligne, chaque colonne et chaque bloc de 3x3 doit contenir les chiffres de 1 à 9 une seule fois.",
+                            BeginTime = 0,
+                            Difficulty = "EASY",
+                            EndTime = 0
+                        });
                 });
 
             modelBuilder.Entity("GameOn.Models.Department", b =>
@@ -446,7 +447,7 @@ namespace GameOn.Migrations
 
             modelBuilder.Entity("GameOn.Models.GameSession", b =>
                 {
-                    b.HasOne("GameOn.Models.DailyChallenge", "DailyChallenge")
+                    b.HasOne("GameOn.Models.Sudoku.DailyChallenge", "DailyChallenge")
                         .WithMany("GameSessions")
                         .HasForeignKey("DailyChallengeId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -470,14 +471,20 @@ namespace GameOn.Migrations
                     b.Navigation("Game");
                 });
 
+            modelBuilder.Entity("GameOn.Models.Sudoku.DailyChallenge", b =>
+                {
+                    b.HasOne("GameOn.Models.Sudoku.Sudoku", "Sudoku")
+                        .WithMany("DailyChallenges")
+                        .HasForeignKey("SudokuId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Sudoku");
+                });
+
             modelBuilder.Entity("GameOn.Models.Company", b =>
                 {
                     b.Navigation("Departments");
-                });
-
-            modelBuilder.Entity("GameOn.Models.DailyChallenge", b =>
-                {
-                    b.Navigation("GameSessions");
                 });
 
             modelBuilder.Entity("GameOn.Models.Department", b =>
@@ -497,7 +504,12 @@ namespace GameOn.Migrations
                     b.Navigation("GameScore");
                 });
 
-            modelBuilder.Entity("GameOn.Models.Sudoku", b =>
+            modelBuilder.Entity("GameOn.Models.Sudoku.DailyChallenge", b =>
+                {
+                    b.Navigation("GameSessions");
+                });
+
+            modelBuilder.Entity("GameOn.Models.Sudoku.Sudoku", b =>
                 {
                     b.Navigation("DailyChallenges");
                 });
