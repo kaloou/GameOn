@@ -121,17 +121,34 @@ namespace GameOn.Views
         }
 
         // Confirmation de la grille (détermine si les valeurs insérées par le joueur sont les bonnes)
-        private void ConfirmGrid_Button_Click(object sender, RoutedEventArgs e)
+        // puis termine la partie et enregistre le résultat
+        private async void ConfirmGrid_Button_Click(object sender, RoutedEventArgs e)
         {
             if (DataContext is SudokuViewModel viewModel)
             {
-                if (viewModel.IsGridValid())
-                {
-                    MessageBox.Show("Félicitations ! Grille validée !");
-                }
-                else
+                if (!viewModel.IsGridValid())
                 {
                     MessageBox.Show("Grille invalide !");
+                    return;
+                }
+
+                try
+                {
+                    TimeSpan? temps = await viewModel.TerminerPartieAsync();
+
+                    if (temps != null)
+                    {
+                        MessageBox.Show($"Félicitations ! Grille validée en {temps.Value:hh\\:mm\\:ss} !");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Grille validée, mais le résultat n'a pas pu être enregistré.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // async void : une exception non attrapée ferait planter l'application
+                    MessageBox.Show($"Erreur lors de l'enregistrement du résultat : {ex.Message}");
                 }
             }
         }

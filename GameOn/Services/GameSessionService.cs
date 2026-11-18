@@ -18,7 +18,7 @@ namespace GameOn.Services
                 .Where(s => s.EmployeeId == employeeId
                          && s.GameId == gameId
                          && s.Difficulty == difficulty
-                         && s.Status == Status.STARTED
+                         && s.Status != Status.EXPIRED // une partie terminée est renvoyée aussi : pas de 2e partie le même jour
                          && s.StartedAt >= debutJournee
                          && s.StartedAt < finJournee)
                 .OrderByDescending(s => s.StartedAt)
@@ -48,6 +48,22 @@ namespace GameOn.Services
             await context.GameSessions
                 .Where(s => s.SessionId == sessionId && s.Status == Status.STARTED)
                 .ExecuteUpdateAsync(s => s.SetProperty(x => x.GameData, gameData));
+        }
+
+        // Termine la partie : état final + date de fin. Renvoie la date de fin, ou null si la partie n'était plus en cours
+        public async Task<DateTime?> TerminerAsync(int sessionId, string gameData)
+        {
+            DateTime fin = DateTime.Now;
+
+            using var context = new AppDbContext();
+            int lignes = await context.GameSessions
+                .Where(s => s.SessionId == sessionId && s.Status == Status.STARTED)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.GameData, gameData)
+                    .SetProperty(x => x.Status, Status.COMPLETED)
+                    .SetProperty(x => x.CompletedAt, fin));
+
+            return lignes == 1 ? fin : null;
         }
     }
 }

@@ -108,7 +108,14 @@ namespace GameOn.Models.Sudoku
 		public bool IsEditable
 		{
 			get { return isEditable; }
-			set { isEditable = value; }
+			set
+			{
+				if (isEditable != value)
+				{
+					isEditable = value;
+					OnPropertyChanged(); // la grille se verrouille à la fin de la partie
+				}
+			}
 		}
 
 		// Collection qui contient les 9 notes possibles (valeurs 1 à 9)
