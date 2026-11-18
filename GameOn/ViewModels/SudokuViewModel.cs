@@ -33,6 +33,27 @@ namespace GameOn.ViewModels
         private int? _sessionId;                   // null tant que la partie n'existe pas en base
         private bool _sauvegardeEnCours;
         private bool _sauvegardeEnAttente;
+        private DateTime? _debutPartie;
+
+        // Vrai une fois la grille validée : plus de sauvegarde, grille verrouillée
+        private bool estTerminee;
+
+        public bool EstTerminee
+        {
+            get => estTerminee;
+            private set
+            {
+                if (estTerminee != value)
+                {
+                    estTerminee = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(PeutConfirmer));
+                }
+            }
+        }
+
+        // Le bouton "Confirmer" n'est actif que si la grille est pleine et la partie pas encore terminée
+        public bool PeutConfirmer => IsGridComplete && !EstTerminee;
 
 
         // Booléen qui définit si la grille de sudoku est en mode notes ou pas
@@ -173,6 +194,7 @@ namespace GameOn.ViewModels
             if (e.PropertyName == nameof(SudokuCell.CellValue))
             {
                 OnPropertyChanged(nameof(IsGridComplete));
+                OnPropertyChanged(nameof(PeutConfirmer));
                 _ = SauvegarderAsync();
             }
         }
@@ -214,6 +236,13 @@ namespace GameOn.ViewModels
                 {
                     Restaurer(SudokuSaveData.DepuisJson(partie.GameData));
                     _sessionId = partie.SessionId;
+                    _debutPartie = partie.StartedAt;
+
+                    // Partie du jour déjà terminée : on l'affiche, verrouillée
+                    if (partie.Status == Status.COMPLETED)
+                    {
+                        Verrouiller();
+                    }
                     return;
                 }
 
@@ -225,6 +254,7 @@ namespace GameOn.ViewModels
                 GameSession nouvelle = await _sessions.CreerPartieAsync(
                     employeeId, SeedData.SudokuGameId, _difficulty, CreerSaveData().VersJson());
                 _sessionId = nouvelle.SessionId;
+                _debutPartie = nouvelle.StartedAt;
 
                 // Enregistre les coups joués pendant la création de la partie
                 _ = SauvegarderAsync();
@@ -232,6 +262,38 @@ namespace GameOn.ViewModels
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Erreur de sauvegarde du Sudoku : {ex.Message}");
+            }
+        }
+
+
+        // ===== Fin de la partie (Complete a game) =====
+
+        // Vérifie la condition de fin (grille = solution) puis enregistre le résultat.
+        // Renvoie le temps de résolution, ou null si la grille est fausse / la partie n'a pas pu être enregistrée.
+        public async Task<TimeSpan?> TerminerPartieAsync()
+        {
+            if (EstTerminee || _sessionId == null || _debutPartie == null || !IsGridValid())
+            {
+                return null;
+            }
+
+            DateTime? fin = await _sessions.TerminerAsync(_sessionId.Value, CreerSaveData().VersJson());
+            if (fin == null)
+            {
+                return null; // la partie n'était plus en cours en base (déjà terminée ou expirée)
+            }
+
+            Verrouiller();
+            return fin.Value - _debutPartie.Value;
+        }
+
+        // Bloque la grille et coupe la sauvegarde. Appelé APRÈS CreerSaveData : IsEditable sert à retrouver la grille de départ
+        private void Verrouiller()
+        {
+            EstTerminee = true;
+            foreach (SudokuCell cell in Cells)
+            {
+                cell.IsEditable = false;
             }
         }
 
@@ -295,12 +357,13 @@ namespace GameOn.ViewModels
             }
 
             OnPropertyChanged(nameof(IsGridComplete));
+            OnPropertyChanged(nameof(PeutConfirmer));
         }
 
         // Sauvegarde à chaque coup. Si plusieurs coups arrivent pendant une sauvegarde
         private async Task SauvegarderAsync()
         {
-            if (_sessionId == null) return;
+            if (_sessionId == null || EstTerminee) return;
 
             if (_sauvegardeEnCours)
             {
