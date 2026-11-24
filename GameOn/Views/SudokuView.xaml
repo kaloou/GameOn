@@ -279,7 +279,7 @@
             <Button x:Name="ConfirmGrid_Button"
                     Content="Confirmer"
                     Click="ConfirmGrid_Button_Click"
-                    IsEnabled="{Binding PeutConfirmer}"
+                    IsEnabled="{Binding CanConfirm}"
                     Style="{StaticResource ConfirmButtonStyle}"
                     Height="50"
                     FontSize="15"/>

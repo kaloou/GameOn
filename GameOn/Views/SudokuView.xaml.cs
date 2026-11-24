@@ -134,11 +134,11 @@ namespace GameOn.Views
 
                 try
                 {
-                    TimeSpan? temps = await viewModel.TerminerPartieAsync();
+                    TimeSpan? time = await viewModel.CompleteGameAsync();
 
-                    if (temps != null)
+                    if (time != null)
                     {
-                        MessageBox.Show($"Félicitations ! Grille validée en {temps.Value:hh\\:mm\\:ss} !");
+                        MessageBox.Show($"Félicitations ! Grille validée en {time.Value:hh\\:mm\\:ss} !");
                     }
                     else
                     {
