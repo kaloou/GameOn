@@ -16,57 +16,210 @@
         <FontFamily x:Key="Police">Archivo, Segoe UI</FontFamily>
         <FontFamily x:Key="PoliceTitre">Archivo Expanded, Archivo, Segoe UI</FontFamily>
 
-        <!-- Liste déroulante (visuel seulement) -->
-        <Style x:Key="Liste" TargetType="Border">
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Background" Value="#182939"/>
-            <Setter Property="BorderBrush" Value="#283949"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="10"/>
+        <!-- ===== Liste déroulante (ComboBox) ===== -->
+        <Style x:Key="ElementListe" TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="#A9BACA"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Fond" Background="Transparent" CornerRadius="6" Padding="11,9">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="#F6FDFF"/>
+                            </Trigger>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Fond" Property="Background" Value="#213447"/>
+                                <Setter Property="Foreground" Value="#F6FDFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
-        <Style x:Key="TexteListe" TargetType="TextBlock">
+
+        <Style x:Key="Liste" TargetType="ComboBox">
+            <Setter Property="Height" Value="50"/>
             <Setter Property="FontFamily" Value="{StaticResource Police}"/>
             <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="#F6FDFF"/>
-            <Setter Property="Margin" Value="14,0,0,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style x:Key="Chevron" TargetType="Path">
-            <Setter Property="Data" Value="M0.83,0.83 L4.33,4.5 L7.83,0.83"/>
-            <Setter Property="Stroke" Value="#A6B7C7"/>
-            <Setter Property="StrokeThickness" Value="1.67"/>
-            <Setter Property="StrokeStartLineCap" Value="Round"/>
-            <Setter Property="StrokeEndLineCap" Value="Round"/>
-            <Setter Property="StrokeLineJoin" Value="Round"/>
-            <Setter Property="Width" Value="8.67"/>
-            <Setter Property="Height" Value="5.33"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,16,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="ItemContainerStyle" Value="{StaticResource ElementListe}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <!-- Toute la boîte ouvre la liste -->
+                            <ToggleButton Focusable="False" ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="Fond" Background="#182939" BorderBrush="#283949" BorderThickness="1" CornerRadius="10">
+                                            <Path Data="M0.83,0.83 L4.33,4.5 L7.83,0.83" Stroke="#A6B7C7" StrokeThickness="1.67"
+                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                                  Width="8.67" Height="5.33" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Fond" Property="BorderBrush" Value="#3A4F62"/>
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="Fond" Property="BorderBrush" Value="#3A4F62"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <ContentPresenter Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0"
+                                              IsHitTestVisible="False"/>
+
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" VerticalOffset="6"
+                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                <Border Background="#182939" BorderBrush="#283949" BorderThickness="1" CornerRadius="10" Padding="4"
+                                        MinWidth="{TemplateBinding ActualWidth}">
+                                    <ScrollViewer MaxHeight="300" VerticalScrollBarVisibility="Auto">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <!-- Groupe de boutons segmentés (visuel seulement) -->
-        <Style x:Key="Segments" TargetType="Border">
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Background" Value="#182939"/>
-            <Setter Property="BorderBrush" Value="#283949"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="4"/>
-        </Style>
-        <Style x:Key="Segment" TargetType="Border">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="CornerRadius" Value="6"/>
+        <!-- ===== Boutons segmentés (ListBox à sélection unique) ===== -->
+        <Style x:Key="Segment" TargetType="ListBoxItem">
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Padding" Value="14,0"/>
             <Setter Property="Background" Value="Transparent"/>
-        </Style>
-        <Style x:Key="TexteSegment" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#A9BACA"/>
             <Setter Property="FontFamily" Value="{StaticResource Police}"/>
             <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#A9BACA"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#DCE6EF"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#2B4156"/>
+                    <Setter Property="Foreground" Value="#F8FDFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Difficulté : une couleur par niveau quand il est sélectionné -->
+        <Style x:Key="SegmentDifficulte" TargetType="ListBoxItem" BasedOn="{StaticResource Segment}">
+            <Style.Triggers>
+                <!-- ponytail: Easy sélectionné n'apparaît pas sur la maquette, vert choisi pour suivre la logique des couleurs -->
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True"/>
+                        <Condition Binding="{Binding}" Value="Easy"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="#2C4A40"/>
+                    <Setter Property="Foreground" Value="#7DD3A0"/>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True"/>
+                        <Condition Binding="{Binding}" Value="Normal"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="#2B4156"/>
+                    <Setter Property="Foreground" Value="#8CC2F2"/>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True"/>
+                        <Condition Binding="{Binding}" Value="Hard"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="#463B43"/>
+                    <Setter Property="Foreground" Value="#F99A97"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="Segments" TargetType="ListBox">
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="ItemContainerStyle" Value="{StaticResource Segment}"/>
+            <Setter Property="ItemsPanel">
+                <Setter.Value>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBox">
+                        <Border Background="#182939" BorderBrush="#283949" BorderThickness="1" CornerRadius="10" Padding="2,4">
+                            <ItemsPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ===== Bouton Hall of Fame (doré, grisé quand désactivé) ===== -->
+        <Style x:Key="BoutonHallOfFame" TargetType="Button">
+            <Setter Property="Width" Value="136"/>
+            <Setter Property="Height" Value="46"/>
+            <Setter Property="Background" Value="#212B2D"/>
+            <Setter Property="BorderBrush" Value="#574D2E"/>
+            <Setter Property="Foreground" Value="#FCC465"/>
+            <Setter Property="FontFamily" Value="{StaticResource Police}"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Fond" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" Margin="16,0,0,0"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Fond" Property="BorderBrush" Value="#8A7238"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <!-- En-têtes de colonnes du tableau -->
@@ -96,67 +249,34 @@
                     </Grid>
                 </StackPanel>
 
-                <TextBlock Text="Sudoku · Hard · la semaine dernière" FontFamily="{StaticResource Police}" FontSize="16"
+                <TextBlock Text="{Binding SousTitre}" FontFamily="{StaticResource Police}" FontSize="16"
                            Foreground="#A9BBC9" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,109,0,0"/>
 
-                <!-- Bouton Hall of Fame -->
-                <!-- ponytail: pas encore de page Hall of Fame sur main, le bouton n'a pas de commande -->
-                <Border Width="136" Height="46" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,80,0,0"
-                        Background="#212B2D" BorderBrush="#574D2E" BorderThickness="1" CornerRadius="10" Cursor="Hand">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                <!-- Pas encore de page Hall of Fame : bouton désactivé (grisé) -->
+                <Button Style="{StaticResource BoutonHallOfFame}" IsEnabled="False"
+                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,80,0,0"
+                        ToolTip="Bientôt disponible" ToolTipService.ShowOnDisabled="True">
+                    <StackPanel Orientation="Horizontal">
                         <Path Data="M5,16 L3,5 L8.5,10 L12,4 L15.5,10 L21,5 L19,16 Z M5,18 H19 V19 C19,19.6 18.6,20 18,20 H6 C5.4,20 5,19.6 5,19 Z"
-                              Fill="#FCC465" Stretch="Fill" Width="12" Height="11.67" VerticalAlignment="Center"/>
-                        <TextBlock Text="Hall of Fame" FontFamily="{StaticResource Police}" FontSize="15" FontWeight="Bold"
-                                   Foreground="#FCC465" Margin="11,0,0,0" VerticalAlignment="Center"/>
+                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              Stretch="Fill" Width="12" Height="11.67" VerticalAlignment="Center"/>
+                        <TextBlock Text="Hall of Fame" Margin="11,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
-                </Border>
+                </Button>
             </Grid>
 
-            <!-- ===== Filtres (visuels, pas encore reliés) ===== -->
+            <!-- ===== Filtres ===== -->
             <StackPanel Orientation="Horizontal" Height="50">
-                <Border Style="{StaticResource Liste}" Width="194" Margin="0,0,12,0">
-                    <Grid>
-                        <TextBlock Text="Sudoku" Style="{StaticResource TexteListe}"/>
-                        <Path Style="{StaticResource Chevron}"/>
-                    </Grid>
-                </Border>
-                <Border Style="{StaticResource Liste}" Width="207" Margin="0,0,13,0">
-                    <Grid>
-                        <TextBlock Text="Tous les départements" Style="{StaticResource TexteListe}"/>
-                        <Path Style="{StaticResource Chevron}"/>
-                    </Grid>
-                </Border>
-                <Border Style="{StaticResource Segments}" Width="213">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Style="{StaticResource Segment}" Width="60">
-                            <TextBlock Text="Easy" Style="{StaticResource TexteSegment}"/>
-                        </Border>
-                        <Border Style="{StaticResource Segment}" Width="74" Margin="4,0">
-                            <TextBlock Text="Normal" Style="{StaticResource TexteSegment}"/>
-                        </Border>
-                        <Border Style="{StaticResource Segment}" Width="61" Background="#463B43">
-                            <TextBlock Text="Hard" Style="{StaticResource TexteSegment}" Foreground="#F99A97"/>
-                        </Border>
-                    </StackPanel>
-                </Border>
+                <ComboBox Style="{StaticResource Liste}" Width="194" Margin="0,0,12,0"
+                          ItemsSource="{Binding Jeux}" SelectedItem="{Binding Jeu}"/>
+                <ComboBox Style="{StaticResource Liste}" Width="207" Margin="0,0,13,0"
+                          ItemsSource="{Binding Departements}" SelectedItem="{Binding Departement}"/>
+                <ListBox Style="{StaticResource Segments}" ItemContainerStyle="{StaticResource SegmentDifficulte}"
+                         ItemsSource="{Binding Difficultes}" SelectedItem="{Binding Difficulte}"/>
             </StackPanel>
 
-            <Border Style="{StaticResource Segments}" Width="350" HorizontalAlignment="Left" Margin="0,12,0,0">
-                <StackPanel Orientation="Horizontal">
-                    <Border Style="{StaticResource Segment}" Width="67">
-                        <TextBlock Text="Today" Style="{StaticResource TexteSegment}"/>
-                    </Border>
-                    <Border Style="{StaticResource Segment}" Width="93" Margin="4,0">
-                        <TextBlock Text="This week" Style="{StaticResource TexteSegment}"/>
-                    </Border>
-                    <Border Style="{StaticResource Segment}" Width="92" Background="#2B4156">
-                        <TextBlock Text="Last week" Style="{StaticResource TexteSegment}" Foreground="#F8FDFF"/>
-                    </Border>
-                    <Border Style="{StaticResource Segment}" Width="76" Margin="4,0,0,0">
-                        <TextBlock Text="All time" Style="{StaticResource TexteSegment}"/>
-                    </Border>
-                </StackPanel>
-            </Border>
+            <ListBox Style="{StaticResource Segments}" Margin="0,12,0,0"
+                     ItemsSource="{Binding PeriodesAffichees}" SelectedItem="{Binding Periode}"/>
 
             <!-- ===== Tableau ===== -->
             <Border Margin="0,24,0,0" Background="#192A3A" BorderBrush="#283949" BorderThickness="1" CornerRadius="12">
