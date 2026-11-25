@@ -35,16 +35,32 @@ namespace GameOn.ViewModels
 
         public RelaisCommande SudokuCommande { get; }
 
+
         public BaseViewModel CurrentViewModel
         {
             get => _currentViewModel;
             set
             {
-                if (value != null)
+                if (value != null && value != _currentViewModel)
                 {
+                    // On quitte une partie de Sudoku : sauvegarde de l'état final
+                    if (_currentViewModel is SudokuViewModel partie)
+                    {
+                        _ = partie.QuitAsync();
+                    }
+
                     _currentViewModel = value;
                     OnPropertyChanged();
                 }
+            }
+        }
+
+        // Appelée à la fermeture de l'application
+        public async Task QuitAsync()
+        {
+            if (CurrentViewModel is SudokuViewModel partie)
+            {
+                await partie.QuitAsync();
             }
         }
 

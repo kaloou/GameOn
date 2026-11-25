@@ -1,5 +1,7 @@
-﻿using System;
+﻿using GameOn.ViewModels;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,7 +11,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using GameOn.ViewModels;
 
 namespace GameOn.Views
 {
@@ -23,5 +24,25 @@ namespace GameOn.Views
             InitializeComponent();
             DataContext = new MainViewModel();
         }
+
+        // Vrai une fois la sauvegarde finale faite : la fenêtre peut alors vraiment se fermer
+        private bool fermetureAutorisee;
+
+        private async void Window_Closing(object? sender, CancelEventArgs e)
+        {
+            if (fermetureAutorisee) return;
+
+            // On annule la fermeture le temps de sauvegarder, puis on referme
+            e.Cancel = true;
+
+            if (DataContext is MainViewModel vm)
+            {
+                await vm.QuitAsync();
+            }
+
+            fermetureAutorisee = true;
+            Close();
+        }
+
     }
 }

@@ -441,6 +441,31 @@ namespace GameOn.ViewModels
 
             OnPropertyChanged(nameof(IsGridComplete));
             OnPropertyChanged(nameof(CanConfirm));
+        
+        }
+
+
+        // Sauvegarde garantie quand le joueur quitte le jeu (changement d'écran ou fermeture).
+        // Attend la fin d'une sauvegarde en cours, puis enregistre l'état final.
+        public async Task QuitAsync()
+        {
+            StopTimer();
+
+            if (sessionId == null || IsFinished) return; 
+
+            while (saveInProgress)
+            {
+                await Task.Delay(50);
+            }
+
+            try
+            {
+                await sessions.SauvegarderAsync(sessionId.Value, CreateSaveData().VersJson());
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erreur de sauvegarde du Sudoku : {ex.Message}");
+            }
         }
 
         // Sauvegarde à chaque coup. Si plusieurs coups arrivent pendant une sauvegarde
