@@ -11,7 +11,7 @@ namespace GameOn.Services
         public async Task<DailyChallenge> ObtenirDefiDuJourAsync(Difficulty difficulty)
         {
             string json = await SudokuApi.GetSudokuPuzzleAsync(difficulty);
-            return new DailyChallenge(0, DateTime.Today, json);
+            return new DailyChallenge(0, DateTime.Today, json, difficulty);
         }
     }
 }

@@ -66,11 +66,9 @@ namespace GameOn.Services
             return lignes == 1 ? fin : null;
         }
 
-        // Le jeu est-il accessible au département du joueur ? (pas de département = pas d'accès)
-        public async Task<bool> EstAccessibleAsync(int? departmentId, int gameId)
+        // Le jeu est-il accessible au département du joueur ?
+        public async Task<bool> EstAccessibleAsync(int departmentId, int gameId)
         {
-            if (departmentId == null) return false;
-
             using var context = new AppDbContext();
             return await context.Departments
                 .AnyAsync(d => d.DepartmentId == departmentId

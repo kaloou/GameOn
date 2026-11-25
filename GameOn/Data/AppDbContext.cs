@@ -13,7 +13,6 @@ namespace GameOn.Data
         public DbSet<Department> Departments => Set<Department>();
         public DbSet<Employee> Employees => Set<Employee>();
         public DbSet<Game> Games => Set<Game>();
-        public DbSet<Sudoku> Sudokus => Set<Sudoku>();
         public DbSet<GameSession> GameSessions => Set<GameSession>();
         public DbSet<GameScore> GameScores => Set<GameScore>();
         public DbSet<DailyChallenge> DailyChallenges => Set<DailyChallenge>();
@@ -49,6 +48,14 @@ namespace GameOn.Data
             modelBuilder.Entity<GameSession>().HasKey(s => s.SessionId);
             modelBuilder.Entity<GameScore>().HasKey(s => s.ScoreId);
             modelBuilder.Entity<DailyChallenge>().HasKey(c => c.ChallengeId);
+
+            // Un seul défi par jour et par difficulté : l'index unique bloque les doublons,
+            // même si deux générations tournent en même temps
+            modelBuilder.Entity<DailyChallenge>(c =>
+            {
+                c.Property(x => x.Difficulty).HasMaxLength(20);
+                c.HasIndex(x => new { x.Date, x.Difficulty }).IsUnique();
+            });
 
             // Email unique (une longueur max est obligatoire pour un index MySQL)
             modelBuilder.Entity<Employee>(e =>
