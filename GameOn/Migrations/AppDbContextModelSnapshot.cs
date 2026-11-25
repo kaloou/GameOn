@@ -22,6 +22,73 @@ namespace GameOn.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("DepartmentGames", b =>
+                {
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("int");
+
+                    b.HasKey("DepartmentId", "GameId");
+
+                    b.HasIndex("GameId");
+
+                    b.ToTable("DepartmentGames");
+
+                    b.HasData(
+                        new
+                        {
+                            DepartmentId = 1,
+                            GameId = 1
+                        },
+                        new
+                        {
+                            DepartmentId = 2,
+                            GameId = 1
+                        },
+                        new
+                        {
+                            DepartmentId = 3,
+                            GameId = 1
+                        },
+                        new
+                        {
+                            DepartmentId = 4,
+                            GameId = 1
+                        },
+                        new
+                        {
+                            DepartmentId = 5,
+                            GameId = 1
+                        },
+                        new
+                        {
+                            DepartmentId = 6,
+                            GameId = 1
+                        },
+                        new
+                        {
+                            DepartmentId = 7,
+                            GameId = 1
+                        },
+                        new
+                        {
+                            DepartmentId = 8,
+                            GameId = 1
+                        },
+                        new
+                        {
+                            DepartmentId = 9,
+                            GameId = 1
+                        },
+                        new
+                        {
+                            DepartmentId = 10,
+                            GameId = 1
+                        });
+                });
+
             modelBuilder.Entity("GameOn.Models.Company", b =>
                 {
                     b.Property<int>("CompanyId")
@@ -397,6 +464,21 @@ namespace GameOn.Migrations
                             Difficulty = "EASY",
                             EndTime = 0
                         });
+                });
+
+            modelBuilder.Entity("DepartmentGames", b =>
+                {
+                    b.HasOne("GameOn.Models.Department", null)
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GameOn.Models.Game", null)
+                        .WithMany()
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("GameOn.Models.Department", b =>

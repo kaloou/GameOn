@@ -50,6 +50,9 @@ namespace GameOn.Models
 
         public List<Employee> Employees { get; set; } = new();
 
+        // Jeux auxquels ce département a accès
+        public List<Game> Games { get; set; } = new();
+
         public Department()
         {
         }   

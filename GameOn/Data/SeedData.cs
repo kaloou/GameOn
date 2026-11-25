@@ -55,6 +55,13 @@ namespace GameOn.Data
                 Difficulty = Models.Difficulty.EASY
             });
 
+            // Accès au Sudoku : départements 1 à 10 (compagnies 1 et 2).
+            // Les départements 11 à 15 (compagnie 3) n'y ont pas accès : pour tester le refus.
+            modelBuilder.Entity("DepartmentGames").HasData(
+                Enumerable.Range(1, 10)
+                    .Select(id => new { DepartmentId = id, GameId = SudokuGameId })
+                    .ToArray());
+
         }
 
 

@@ -1,4 +1,5 @@
 ﻿using GameOn.Commande;
+using GameOn.Data;
 using GameOn.Models.Sudoku;
 using GameOn.Services;
 using GameOn.Views;
@@ -91,11 +92,30 @@ namespace GameOn.ViewModels
         }
 
         // Lancement du Sudoku après sélection de la difficulté
-        private void StartSudoku()
+        private async void StartSudoku()
         {
             if (!Session.EstConnecte)
             {
                 CurrentViewModel = LoginVM;
+                return;
+            }
+
+            // Le Sudoku doit être accessible au département du joueur
+            bool accessible;
+            try
+            {
+                accessible = await _sessions.EstAccessibleAsync(Session.Utilisateur!.DepartmentId, SeedData.SudokuGameId);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Connexion à la base de données impossible. Réessayez plus tard.");
+                return;
+            }
+
+            if (!accessible)
+            {
+                MessageBox.Show("Le Sudoku n'est pas disponible pour votre département.",
+                                "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
