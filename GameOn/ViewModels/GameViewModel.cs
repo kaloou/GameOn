@@ -11,6 +11,14 @@ namespace GameOn.ViewModels
         public string TempsRestant => (DateTime.Today.AddDays(1) - DateTime.Now).ToString(@"hh\:mm\:ss");
         public double ProgressionJour => DateTime.Now.TimeOfDay.TotalDays;
 
+        // Le Sudoku n'apparaît que s'il est accessible au département du joueur
+        private bool sudokuVisible = true;
+        public bool SudokuVisible
+        {
+            get => sudokuVisible;
+            set { sudokuVisible = value; OnPropertyChanged(); }
+        }
+
         public GameViewModel(Action retour, Action jouer)
         {
             RetourCommande = new RelaisCommande(retour);
