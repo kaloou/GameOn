@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text;
+using System.Windows.Threading;
 
 namespace GameOn.ViewModels
 {
@@ -34,6 +35,31 @@ namespace GameOn.ViewModels
         private bool saveInProgress;
         private bool savePending;
         private DateTime? startedAt;
+
+        // Minuteur qui actualise le chrono chaque seconde
+        private readonly DispatcherTimer timer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1)
+        };
+
+        // Temps depuis le lancement de la partie
+        private TimeSpan time = TimeSpan.Zero;
+
+        // Propriété qui actualise l'affichage quand le temps change
+        public TimeSpan Time
+        {
+            get => time;
+
+            private set
+            {
+                time = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(FormattedTime));
+            }
+        }
+
+        // Conversion du temps dans le format d'affichage
+        public string FormattedTime => $"{(int)Time.TotalHours:00}:{Time.Minutes:00}:{Time.Seconds:00}";
 
         // Booléen qui définit si la partie est terminée
         private bool isFinished;
@@ -85,6 +111,12 @@ namespace GameOn.ViewModels
             this.sessions = sessions;
             this.difficulty = difficulty;
 
+            // Actualisation du chrono chaque seconde
+            timer.Tick += (sender, e) =>
+            {
+                UpdateTimer();
+            };
+
             // Si le mode est casual, passe la difficulté concernée
             Difficulty gridDifficulty = difficulty switch
             {
@@ -98,6 +130,37 @@ namespace GameOn.ViewModels
             _ = StartGameAsync(gridDifficulty);
 
             BackCommand = new RelaisCommande(retour);
+        }
+
+        // Actualisation du temps écoulé à partir de l'heure du début de la partie
+        private void UpdateTimer()
+        {
+            if (startedAt != null && !IsFinished)
+            {
+                Time = DateTime.Now - startedAt.Value;
+            }
+        }
+
+        // Démarrage du chrono
+        public void StartTimer()
+        {
+            UpdateTimer();
+            timer.Start();
+        }
+
+        // Arrêt du chrono (lorsque le joueur quitte la page)
+        public void StopTimer()
+        {
+            timer.Stop();
+        }
+
+        // Relance du chrono (lorsque le joueur revient sur le jeu)
+        public void ResumeTimer()
+        {
+            if (startedAt != null && !IsFinished)
+            {
+                StartTimer();
+            }
         }
 
         // Récupèration de la grille depuis le moteur Sudoku
@@ -239,20 +302,26 @@ namespace GameOn.ViewModels
             {
                 int employeeId = session.Utilisateur!.EmployeeId;
 
-                GameSession? partie = await sessions.TrouverPartieDuJourAsync(
+                GameSession? gameSession = await sessions.TrouverPartieDuJourAsync(
                     employeeId, SeedData.SudokuGameId, difficulty);
 
-                if (partie != null)
+                if (gameSession != null)
                 {
-                    RestoreGame(SudokuSaveData.DepuisJson(partie.GameData));
-                    sessionId = partie.SessionId;
-                    startedAt = partie.StartedAt;
+                    RestoreGame(SudokuSaveData.DepuisJson(gameSession.GameData));
+                    sessionId = gameSession.SessionId;
+                    startedAt = gameSession.StartedAt;
 
                     // Partie du jour déjà terminée : on l'affiche, verrouillée
-                    if (partie.Status == Status.COMPLETED)
+                    if (gameSession.Status == Status.COMPLETED)
                     {
+                        Time = (gameSession.CompletedAt ?? DateTime.Now) - gameSession.StartedAt;
                         LockGrid();
                     }
+                    else
+                    {
+                        StartTimer();
+                    }
+
                     return;
                 }
 
@@ -261,10 +330,11 @@ namespace GameOn.ViewModels
                 // la grille n'a pas pu être chargée
                 if (Cells.Count != 81) return;
 
-                GameSession nouvelle = await sessions.CreerPartieAsync(
-                    employeeId, SeedData.SudokuGameId, difficulty, CreateSaveData().VersJson());
-                sessionId = nouvelle.SessionId;
-                startedAt = nouvelle.StartedAt;
+                GameSession newSession = await sessions.CreerPartieAsync(employeeId, SeedData.SudokuGameId, difficulty, CreateSaveData().VersJson());
+                sessionId = newSession.SessionId;
+                startedAt = newSession.StartedAt;
+
+                StartTimer();
 
                 // Enregistre les coups joués pendant la création de la partie
                 _ = SaveGameAsync();
@@ -287,14 +357,17 @@ namespace GameOn.ViewModels
                 return null;
             }
 
-            DateTime? fin = await sessions.TerminerAsync(sessionId.Value, CreateSaveData().VersJson());
-            if (fin == null)
+            DateTime? completedAt = await sessions.TerminerAsync(sessionId.Value, CreateSaveData().VersJson());
+            if (completedAt == null)
             {
                 return null; // la partie n'était plus en cours en base (déjà terminée ou expirée)
             }
 
+            timer.Stop();
+            Time = completedAt.Value - startedAt.Value;
+            
             LockGrid();
-            return fin.Value - startedAt.Value;
+            return Time;
         }
 
         // Bloque la grille et coupe la sauvegarde. Appelé APRÈS CreerSaveData : IsEditable sert à retrouver la grille de départ

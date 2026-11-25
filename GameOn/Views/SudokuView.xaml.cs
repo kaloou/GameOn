@@ -241,5 +241,23 @@ namespace GameOn.Views
                 viewModel.SolveGrid();
             }
         }
+
+        // Arrêt de l'actualisation du chrono (lorsque le joueur quitte la page)
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel)
+            {
+                viewModel.StopTimer();
+            }
+        }
+
+        // Relance de l'actualisation du chrono (lorsque le joueur revient sur la page)
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel)
+            {
+                viewModel.ResumeTimer();
+            }
+        }
     }
 }
