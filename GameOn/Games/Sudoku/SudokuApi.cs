@@ -10,28 +10,35 @@ namespace GameOn.Games.Sudoku
 
         static SudokuApi()
         {
-            
+
             client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
         }
-        
-        public static async Task<string> GetSudokuPuzzleAsync(Difficulty difficulty)
+
+        // Grille du jour pour une date et une difficulté : la même seed redonne toujours la même grille
+        public static async Task<string> GetSudokuPuzzleAsync(Difficulty difficulty, DateTime date)
         {
             if (string.IsNullOrEmpty(apiKey))
                 throw new InvalidOperationException("Clé API manquante : ajoute API_NINJAS_KEY dans le fichier .env");
 
-            int seed = DateTime.Today.Year * 1000 + DateTime.Today.DayOfYear;
+            // L'API ne connaît que easy, medium et hard
+            string niveau = difficulty switch
+            {
+                Difficulty.EASY or Difficulty.EASY_CASUAL => "easy",
+                Difficulty.MEDIUM or Difficulty.MEDIUM_CASUAL => "medium",
+                _ => "hard"
+            };
 
-            string url = $"https://api.api-ninjas.com/v1/sudokugenerate?difficulty={difficulty.ToString().ToLower()}&width=3&height=3&seed={seed}";
+            // Seed différente par jour ET par difficulté : une grille casual n'est jamais celle du classé
+            int seed = (date.Year * 1000 + date.DayOfYear) * 10 + (int)difficulty;
+
+            string url = $"https://api.api-ninjas.com/v1/sudokugenerate?difficulty={niveau}&width=3&height=3&seed={seed}";
             using var response = await client.GetAsync(url);
             string json = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-            {
-                string error = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Failed to get Sudoku puzzle: {error}");
-            }
-            
-            return await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to get Sudoku puzzle: {json}");
+
+            return json;
         }
     }
 }
