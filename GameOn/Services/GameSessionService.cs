@@ -13,6 +13,7 @@ namespace GameOn.Services
             using var context = new AppDbContext();
             return await context.GameSessions
                 .AsNoTracking()
+                .Include(s => s.DailyChallenge) // grille de départ et solution, pour reprendre la partie
                 .Where(s => s.EmployeeId == employeeId
                          && s.GameId == gameId
                          && s.DailyChallenge!.Difficulty == difficulty

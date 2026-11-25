@@ -305,6 +305,7 @@ namespace GameOn.ViewModels
 
                 if (gameSession != null)
                 {
+                    challenge = gameSession.DailyChallenge!;
                     RestoreGame(SudokuSaveData.DepuisJson(gameSession.GameData));
                     sessionId = gameSession.SessionId;
                     startedAt = gameSession.StartedAt;
@@ -371,7 +372,7 @@ namespace GameOn.ViewModels
             return Time;
         }
 
-        // Bloque la grille et coupe la sauvegarde. Appelé APRÈS CreerSaveData : IsEditable sert à retrouver la grille de départ
+        // Bloque la grille et coupe la sauvegarde
         private void LockGrid()
         {
             IsFinished = true;
@@ -408,28 +409,23 @@ namespace GameOn.ViewModels
             foreach (SudokuCell cell in Cells)
             {
                 int i = cell.Row * 9 + cell.Column;
-                data.GrilleDepart[i] = cell.IsEditable ? 0 : cell.CellValue;
                 data.Valeurs[i] = cell.CellValue;
                 data.Notes[i] = cell.Notes.Where(n => n.IsVisible).Select(n => n.NoteValue).ToArray();
-            }
-
-            if (solutionGrid != null)
-            {
-                data.Solution = SudokuSaveData.Aplatir(solutionGrid);
             }
 
             return data;
         }
 
-        // Données sauvegardées, grille affichée
+        // Grille de départ et solution depuis le défi du jour, progression depuis la sauvegarde
         private void RestoreGame(SudokuSaveData data)
         {
-            solutionGrid = SudokuSaveData.VersGrille(data.Solution);
+            int[,] grid = sudokuEngine.JsonToList(challenge!.ChallengeData, "puzzle");
+            solutionGrid = sudokuEngine.JsonToList(challenge.ChallengeData, "solution");
             Cells.Clear();
 
             for (int i = 0; i < 81; i++)
             {
-                bool isEditable = data.GrilleDepart[i] == 0;
+                bool isEditable = grid[i / 9, i % 9] == 0;
                 var cell = new SudokuCell(data.Valeurs[i], i / 9, i % 9, isEditable);
 
                 foreach (int note in data.Notes[i])
