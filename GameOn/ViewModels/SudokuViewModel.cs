@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text;
+using System.Windows.Threading;
 
 namespace GameOn.ViewModels
 {
@@ -27,33 +28,62 @@ namespace GameOn.ViewModels
         private int[,]? solutionGrid;
 
         // Sauvegarde de la partie 
-        private readonly SessionService _session;
-        private readonly GameSessionService _sessions;
-        private readonly Difficulty _difficulty;
-        private int? _sessionId;                   // null tant que la partie n'existe pas en base
-        private bool _sauvegardeEnCours;
-        private bool _sauvegardeEnAttente;
-        private DateTime? _debutPartie;
+        private readonly SessionService session;
+        private readonly GameSessionService sessions;
+        private readonly IDailyChallengeProvider challenges;
+        private DailyChallenge? challenge;   // défi du jour chargé pour cette partie
 
-        // Vrai une fois la grille validée : plus de sauvegarde, grille verrouillée
-        private bool estTerminee;
 
-        public bool EstTerminee
+        private readonly Difficulty difficulty;
+        private int? sessionId;                   // null tant que la partie n'existe pas en base
+        private bool saveInProgress;
+        private bool savePending;
+        private DateTime? startedAt;
+
+        // Minuteur qui actualise le chrono chaque seconde
+        private readonly DispatcherTimer timer = new DispatcherTimer
         {
-            get => estTerminee;
+            Interval = TimeSpan.FromSeconds(1)
+        };
+
+        // Temps depuis le lancement de la partie
+        private TimeSpan time = TimeSpan.Zero;
+
+        // Propriété qui actualise l'affichage quand le temps change
+        public TimeSpan Time
+        {
+            get => time;
+
             private set
             {
-                if (estTerminee != value)
+                time = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(FormattedTime));
+            }
+        }
+
+        // Conversion du temps dans le format d'affichage
+        public string FormattedTime => $"{(int)Time.TotalHours:00}:{Time.Minutes:00}:{Time.Seconds:00}";
+
+        // Booléen qui définit si la partie est terminée
+        private bool isFinished;
+
+        public bool IsFinished
+        {
+            get => isFinished;
+            private set
+            {
+                if (isFinished != value)
                 {
-                    estTerminee = value;
+                    isFinished = value;
                     OnPropertyChanged();
-                    OnPropertyChanged(nameof(PeutConfirmer));
+                    OnPropertyChanged(nameof(CanConfirm));
                 }
             }
         }
 
-        // Le bouton "Confirmer" n'est actif que si la grille est pleine et la partie pas encore terminée
-        public bool PeutConfirmer => IsGridComplete && !EstTerminee;
+        // Booléen qui définir le statut du bouton "Confirmer". Il n'est actif que si la grille est pleine et la partie pas encore terminée
+        public bool CanConfirm => IsGridComplete && !IsFinished;
 
 
         // Booléen qui définit si la grille de sudoku est en mode notes ou pas
@@ -76,23 +106,67 @@ namespace GameOn.ViewModels
         }
 
         // Initialisation des cases, du moteur sudoku et de la commande de retour
-        public SudokuViewModel(Action retour, Difficulty difficulty,
-               SessionService session, GameSessionService sessions)
+        public SudokuViewModel(Action retour, Difficulty difficulty, SessionService session,
+                       GameSessionService sessions, IDailyChallengeProvider challenges)
         {
             Cells = new ObservableCollection<SudokuCell>();
             sudokuEngine = new SudokuEngine();
 
-            _session = session;
-            _sessions = sessions;
-            _difficulty = difficulty;
+            this.session = session;
+            this.sessions = sessions;
+            this.difficulty = difficulty;
+            this.challenges = challenges;
 
-            // Si le mode est casual, passe la difficulté en easy
-            Difficulty gridDifficulty = difficulty == Difficulty.CASUAL ? Difficulty.EASY : difficulty;
+            // Actualisation du chrono chaque seconde
+            timer.Tick += (sender, e) =>
+            {
+                UpdateTimer();
+            };
+
+            // Si le mode est casual, passe la difficulté concernée
+            Difficulty gridDifficulty = difficulty switch
+            {
+                Difficulty.EASY_CASUAL => Difficulty.EASY,
+                Difficulty.MEDIUM_CASUAL => Difficulty.MEDIUM,
+                Difficulty.HARD_CASUAL => Difficulty.HARD,
+                _ => difficulty
+            };
 
             // Reprend la partie du jour si elle existe, sinon charge une nouvelle grille
-            _ = DemarrerPartieAsync(gridDifficulty);
+            _ = StartGameAsync(gridDifficulty);
 
             BackCommand = new RelaisCommande(retour);
+        }
+
+        // Actualisation du temps écoulé à partir de l'heure du début de la partie
+        private void UpdateTimer()
+        {
+            if (startedAt != null && !IsFinished)
+            {
+                Time = DateTime.Now - startedAt.Value;
+            }
+        }
+
+        // Démarrage du chrono
+        public void StartTimer()
+        {
+            UpdateTimer();
+            timer.Start();
+        }
+
+        // Arrêt du chrono (lorsque le joueur quitte la page)
+        public void StopTimer()
+        {
+            timer.Stop();
+        }
+
+        // Relance du chrono (lorsque le joueur revient sur le jeu)
+        public void ResumeTimer()
+        {
+            if (startedAt != null && !IsFinished)
+            {
+                StartTimer();
+            }
         }
 
         // Récupèration de la grille depuis le moteur Sudoku
@@ -103,10 +177,15 @@ namespace GameOn.ViewModels
                 int[,] grid = await sudokuEngine.GetSudokuBaseGridAsync(difficulty);
                 int[,] solution = await sudokuEngine.GetSudokuSolutionGridAsync(difficulty);
                 solutionGrid = solution;
-                
+
                 foreach (SudokuCell cell in Cells)
                 {
                     cell.PropertyChanged -= Cell_PropertyChanged;
+
+                    foreach (SudokuNote note in cell.Notes)
+                    {
+                        note.PropertyChanged -= Note_PropertyChanged;
+                    }
                 }
                 Cells.Clear();
 
@@ -119,7 +198,7 @@ namespace GameOn.ViewModels
 
                         SudokuCell cell = new SudokuCell(value, row, col, isEditable);
 
-                        AjouterCase(cell);
+                        AddCell(cell);
                     }
                 }
             }
@@ -194,8 +273,8 @@ namespace GameOn.ViewModels
             if (e.PropertyName == nameof(SudokuCell.CellValue))
             {
                 OnPropertyChanged(nameof(IsGridComplete));
-                OnPropertyChanged(nameof(PeutConfirmer));
-                _ = SauvegarderAsync();
+                OnPropertyChanged(nameof(CanConfirm));
+                _ = SaveGameAsync();
             }
         }
 
@@ -223,41 +302,52 @@ namespace GameOn.ViewModels
         // ===== Sauvegarde de la partie (Save a game) =====
 
         // Reprise de la partie du jour, ou création d'une nouvelle partie
-        private async Task DemarrerPartieAsync(Difficulty gridDifficulty)
+        private async Task StartGameAsync(Difficulty gridDifficulty)
         {
             try
             {
-                int employeeId = _session.Utilisateur!.EmployeeId;
+                int employeeId = session.Utilisateur!.EmployeeId;
 
-                GameSession? partie = await _sessions.TrouverPartieDuJourAsync(
-                    employeeId, SeedData.SudokuGameId, _difficulty);
+                GameSession? gameSession = await sessions.TrouverPartieDuJourAsync(
+                    employeeId, SeedData.SudokuGameId, difficulty);
 
-                if (partie != null)
+                if (gameSession != null)
                 {
-                    Restaurer(SudokuSaveData.DepuisJson(partie.GameData));
-                    _sessionId = partie.SessionId;
-                    _debutPartie = partie.StartedAt;
+                    RestoreGame(SudokuSaveData.DepuisJson(gameSession.GameData));
+                    sessionId = gameSession.SessionId;
+                    startedAt = gameSession.StartedAt;
 
                     // Partie du jour déjà terminée : on l'affiche, verrouillée
-                    if (partie.Status == Status.COMPLETED)
+                    if (gameSession.Status == Status.COMPLETED)
                     {
-                        Verrouiller();
+                        Time = (gameSession.CompletedAt ?? DateTime.Now) - gameSession.StartedAt;
+                        LockGrid();
                     }
+                    else
+                    {
+                        StartTimer();
+                    }
+
                     return;
                 }
 
-                await LoadSudokuAsync(gridDifficulty);
+                //await LoadSudokuAsync(gridDifficulty);
+                await LoadChallengeAsync(gridDifficulty);
 
                 // la grille n'a pas pu être chargée
-                if (Cells.Count != 81) return; 
+                if (Cells.Count != 81) return;
 
-                GameSession nouvelle = await _sessions.CreerPartieAsync(
-                    employeeId, SeedData.SudokuGameId, _difficulty, CreerSaveData().VersJson());
-                _sessionId = nouvelle.SessionId;
-                _debutPartie = nouvelle.StartedAt;
+                GameSession newSession = await sessions.CreerPartieAsync(
+                                employeeId, SeedData.SudokuGameId, difficulty,
+                                challenge!.ChallengeId == 0 ? null : challenge.ChallengeId,  
+                                CreateSaveData().VersJson());
+                sessionId = newSession.SessionId;
+                startedAt = newSession.StartedAt;
+
+                StartTimer();
 
                 // Enregistre les coups joués pendant la création de la partie
-                _ = SauvegarderAsync();
+                _ = SaveGameAsync();
             }
             catch (Exception ex)
             {
@@ -270,27 +360,30 @@ namespace GameOn.ViewModels
 
         // Vérifie la condition de fin (grille = solution) puis enregistre le résultat.
         // Renvoie le temps de résolution, ou null si la grille est fausse / la partie n'a pas pu être enregistrée.
-        public async Task<TimeSpan?> TerminerPartieAsync()
+        public async Task<TimeSpan?> CompleteGameAsync()
         {
-            if (EstTerminee || _sessionId == null || _debutPartie == null || !IsGridValid())
+            if (IsFinished || sessionId == null || startedAt == null || !IsGridValid())
             {
                 return null;
             }
 
-            DateTime? fin = await _sessions.TerminerAsync(_sessionId.Value, CreerSaveData().VersJson());
-            if (fin == null)
+            DateTime? completedAt = await sessions.TerminerAsync(sessionId.Value, CreateSaveData().VersJson());
+            if (completedAt == null)
             {
                 return null; // la partie n'était plus en cours en base (déjà terminée ou expirée)
             }
 
-            Verrouiller();
-            return fin.Value - _debutPartie.Value;
+            timer.Stop();
+            Time = completedAt.Value - startedAt.Value;
+            
+            LockGrid();
+            return Time;
         }
 
         // Bloque la grille et coupe la sauvegarde. Appelé APRÈS CreerSaveData : IsEditable sert à retrouver la grille de départ
-        private void Verrouiller()
+        private void LockGrid()
         {
-            EstTerminee = true;
+            IsFinished = true;
             foreach (SudokuCell cell in Cells)
             {
                 cell.IsEditable = false;
@@ -298,7 +391,7 @@ namespace GameOn.ViewModels
         }
 
         // Ajoute une case à la grille et écoute ses changements (valeur et notes)
-        private void AjouterCase(SudokuCell cell)
+        private void AddCell(SudokuCell cell)
         {
             cell.PropertyChanged += Cell_PropertyChanged;
             foreach (SudokuNote note in cell.Notes)
@@ -312,12 +405,12 @@ namespace GameOn.ViewModels
         {
             if (e.PropertyName == nameof(SudokuNote.IsVisible))
             {
-                _ = SauvegarderAsync();
+                _ = SaveGameAsync();
             }
         }
 
         // État actuel de la grille et  données à sauvegarder
-        private SudokuSaveData CreerSaveData()
+        private SudokuSaveData CreateSaveData()
         {
             var data = new SudokuSaveData();
 
@@ -338,7 +431,7 @@ namespace GameOn.ViewModels
         }
 
         // Données sauvegardées, grille affichée
-        private void Restaurer(SudokuSaveData data)
+        private void RestoreGame(SudokuSaveData data)
         {
             solutionGrid = SudokuSaveData.VersGrille(data.Solution);
             Cells.Clear();
@@ -353,33 +446,58 @@ namespace GameOn.ViewModels
                     cell.Notes[note - 1].IsVisible = true;
                 }
 
-                AjouterCase(cell); // abonnement APRÈS avoir rempli la case : la restauration ne déclenche pas de sauvegarde
+                AddCell(cell); // abonnement APRÈS avoir rempli la case : la restauration ne déclenche pas de sauvegarde
             }
 
             OnPropertyChanged(nameof(IsGridComplete));
-            OnPropertyChanged(nameof(PeutConfirmer));
+            OnPropertyChanged(nameof(CanConfirm));
+        
+        }
+
+
+        // Sauvegarde garantie quand le joueur quitte le jeu (changement d'écran ou fermeture).
+        // Attend la fin d'une sauvegarde en cours, puis enregistre l'état final.
+        public async Task QuitAsync()
+        {
+            StopTimer();
+
+            if (sessionId == null || IsFinished) return; 
+
+            while (saveInProgress)
+            {
+                await Task.Delay(50);
+            }
+
+            try
+            {
+                await sessions.SauvegarderAsync(sessionId.Value, CreateSaveData().VersJson());
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erreur de sauvegarde du Sudoku : {ex.Message}");
+            }
         }
 
         // Sauvegarde à chaque coup. Si plusieurs coups arrivent pendant une sauvegarde
-        private async Task SauvegarderAsync()
+        private async Task SaveGameAsync()
         {
-            if (_sessionId == null || EstTerminee) return;
+            if (sessionId == null || IsFinished) return;
 
-            if (_sauvegardeEnCours)
+            if (saveInProgress)
             {
-                _sauvegardeEnAttente = true;
+                savePending = true;
                 return;
             }
 
-            _sauvegardeEnCours = true;
+            saveInProgress = true;
             try
             {
                 do
                 {
-                    _sauvegardeEnAttente = false;
-                    await _sessions.SauvegarderAsync(_sessionId.Value, CreerSaveData().VersJson());
+                    savePending = false;
+                    await sessions.SauvegarderAsync(sessionId.Value, CreateSaveData().VersJson());
                 }
-                while (_sauvegardeEnAttente);
+                while (savePending);
             }
             catch (Exception ex)
             {
@@ -387,7 +505,26 @@ namespace GameOn.ViewModels
             }
             finally
             {
-                _sauvegardeEnCours = false;
+                saveInProgress = false;
+            }
+        }
+
+        // Charge la grille et la solution depuis le défi du jour (une seule source : grille et solution correspondent)
+        private async Task LoadChallengeAsync(Difficulty gridDifficulty)
+        {
+            challenge = await challenges.ObtenirDefiDuJourAsync(gridDifficulty);
+
+            int[,] grid = sudokuEngine.JsonToList(challenge.ChallengeData, "puzzle");
+            solutionGrid = sudokuEngine.JsonToList(challenge.ChallengeData, "solution");
+
+            Cells.Clear();
+            for (int row = 0; row < 9; row++)
+            {
+                for (int col = 0; col < 9; col++)
+                {
+                    int value = grid[row, col];
+                    AddCell(new SudokuCell(value, row, col, value == 0));
+                }
             }
         }
 

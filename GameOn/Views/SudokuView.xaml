@@ -8,7 +8,9 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
-             PreviewKeyDown="UserControl_PreviewKeyDown">
+             PreviewKeyDown="UserControl_PreviewKeyDown"
+             Unloaded="UserControl_Unloaded"
+             Loaded="UserControl_Loaded">
 
     <UserControl.Resources>
         <Style x:Key="CircularButtonStyle" TargetType="Button">
@@ -194,7 +196,7 @@
         <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="190">
             
             <!-- Chronomètre -->
-            <TextBlock Text="00:00"
+            <TextBlock Text="{Binding FormattedTime}"
                        FontSize="32"
                        FontWeight="ExtraBold"
                        Foreground="White"
@@ -279,7 +281,7 @@
             <Button x:Name="ConfirmGrid_Button"
                     Content="Confirmer"
                     Click="ConfirmGrid_Button_Click"
-                    IsEnabled="{Binding PeutConfirmer}"
+                    IsEnabled="{Binding CanConfirm}"
                     Style="{StaticResource ConfirmButtonStyle}"
                     Height="50"
                     FontSize="15"/>

@@ -76,6 +76,17 @@ namespace GameOn.Data
                         l => l.Aggregate(0, (h, v) => HashCode.Combine(h, v)),
                         l => l.ToList()));
 
+            // Accès aux jeux par département (plusieurs à plusieurs) : table DepartmentGames
+            modelBuilder.Entity<Department>()
+                .HasMany(d => d.Games)
+                .WithMany(g => g.Departments)
+                .UsingEntity<Dictionary<string, object>>(
+                    "DepartmentGames",
+                    jeu => jeu.HasOne<Game>().WithMany().HasForeignKey("GameId"),
+                    departement => departement.HasOne<Department>().WithMany().HasForeignKey("DepartmentId"),
+                    table => table.HasKey("DepartmentId", "GameId"));
+
+
             // Le sujet exige de conserver toutes les données :
             // supprimer une ligne ne doit jamais effacer en cascade l'historique lié
             foreach (var cle in modelBuilder.Model.GetEntityTypes().SelectMany(t => t.GetForeignKeys()))

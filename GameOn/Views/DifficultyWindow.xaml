@@ -40,7 +40,9 @@
                   Foreground="Black"
                   BorderBrush="#1F3142"
                   Margin="0,0,0,25">
-            <ComboBoxItem Content="Entrainement" Tag="CASUAL"/>
+            <ComboBoxItem Content="Entrainement - Facile" Tag="EASY_CASUAL"/>
+            <ComboBoxItem Content="Entrainement - Moyen" Tag="MEDIUM_CASUAL"/>
+            <ComboBoxItem Content="Entrainement - Difficile" Tag="HARD_CASUAL"/>
             <ComboBoxItem Content="Facile" Tag="EASY"/>
             <ComboBoxItem Content="Moyen" Tag="MEDIUM"/>
             <ComboBoxItem Content="Difficile" Tag="HARD"/>

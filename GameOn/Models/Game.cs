@@ -6,6 +6,10 @@ namespace GameOn.Models
 {
     public class Game
     {
+
+        // Départements qui ont accès à ce jeu
+        public List<Department> Departments { get; set; } = new();
+
         private int gameId;
         private string name = string.Empty;
         private string description = string.Empty;

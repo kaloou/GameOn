@@ -1,4 +1,5 @@
 ﻿using GameOn.Commande;
+using GameOn.Data;
 using GameOn.Models.Sudoku;
 using GameOn.Services;
 using GameOn.Views;
@@ -14,6 +15,9 @@ namespace GameOn.ViewModels
 
         private readonly AuthService _auth = new AuthService();
         private readonly GameSessionService _sessions = new GameSessionService();
+
+        // TEMP : remplacer par le service de la personne 1 (une seule ligne à changer)
+        private readonly IDailyChallengeProvider _defis = new DefiTemporaireProvider();
 
         private BaseViewModel _currentViewModel;
 
@@ -34,16 +38,32 @@ namespace GameOn.ViewModels
 
         public RelaisCommande SudokuCommande { get; }
 
+
         public BaseViewModel CurrentViewModel
         {
             get => _currentViewModel;
             set
             {
-                if (value != null)
+                if (value != null && value != _currentViewModel)
                 {
+                    // On quitte une partie de Sudoku : sauvegarde de l'état final
+                    if (_currentViewModel is SudokuViewModel partie)
+                    {
+                        _ = partie.QuitAsync();
+                    }
+
                     _currentViewModel = value;
                     OnPropertyChanged();
                 }
+            }
+        }
+
+        // Appelée à la fermeture de l'application
+        public async Task QuitAsync()
+        {
+            if (CurrentViewModel is SudokuViewModel partie)
+            {
+                await partie.QuitAsync();
             }
         }
 
@@ -91,11 +111,30 @@ namespace GameOn.ViewModels
         }
 
         // Lancement du Sudoku après sélection de la difficulté
-        private void StartSudoku()
+        private async void StartSudoku()
         {
             if (!Session.EstConnecte)
             {
                 CurrentViewModel = LoginVM;
+                return;
+            }
+
+            // Le Sudoku doit être accessible au département du joueur
+            bool accessible;
+            try
+            {
+                accessible = await _sessions.EstAccessibleAsync(Session.Utilisateur!.DepartmentId, SeedData.SudokuGameId);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Connexion à la base de données impossible. Réessayez plus tard.");
+                return;
+            }
+
+            if (!accessible)
+            {
+                MessageBox.Show("Le Sudoku n'est pas disponible pour votre département.",
+                                "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -105,10 +144,11 @@ namespace GameOn.ViewModels
             if (window.ShowDialog() == true)
             {
                 SudokuVM = new SudokuViewModel(
-                    retour: () => CurrentViewModel = HomeVM,
-                    difficulty: window.SelectedDifficulty,
-                    session: Session,
-                    sessions: _sessions);
+                            retour: () => CurrentViewModel = HomeVM,
+                            difficulty: window.SelectedDifficulty,
+                            session: Session,
+                            sessions: _sessions,
+                            challenges: _defis);
                 OnPropertyChanged(nameof(SudokuVM));
                 CurrentViewModel = SudokuVM;
             }

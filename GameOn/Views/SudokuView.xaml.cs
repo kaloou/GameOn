@@ -134,11 +134,11 @@ namespace GameOn.Views
 
                 try
                 {
-                    TimeSpan? temps = await viewModel.TerminerPartieAsync();
+                    TimeSpan? time = await viewModel.CompleteGameAsync();
 
-                    if (temps != null)
+                    if (time != null)
                     {
-                        MessageBox.Show($"Félicitations ! Grille validée en {temps.Value:hh\\:mm\\:ss} !");
+                        MessageBox.Show($"Félicitations ! Grille validée en {time.Value:hh\\:mm\\:ss} !");
                     }
                     else
                     {
@@ -239,6 +239,24 @@ namespace GameOn.Views
             if (DataContext is SudokuViewModel viewModel)
             {
                 viewModel.SolveGrid();
+            }
+        }
+
+        // Arrêt de l'actualisation du chrono (lorsque le joueur quitte la page)
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel)
+            {
+                viewModel.StopTimer();
+            }
+        }
+
+        // Relance de l'actualisation du chrono (lorsque le joueur revient sur la page)
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SudokuViewModel viewModel)
+            {
+                viewModel.ResumeTimer();
             }
         }
     }
