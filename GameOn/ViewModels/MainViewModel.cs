@@ -106,7 +106,36 @@ namespace GameOn.ViewModels
             });
 
 
+            // À chaque connexion / déconnexion, la liste des jeux suit le département du joueur
+            Session.PropertyChanged += async (_, e) =>
+            {
+                if (e.PropertyName == nameof(SessionService.Utilisateur))
+                {
+                    await MajJeuxAccessiblesAsync();
+                }
+            };
+
             _currentViewModel = HomeVM;
+        }
+
+        // Déconnecté : le Sudoku reste visible (cliquer renvoie vers la connexion)
+        private async Task MajJeuxAccessiblesAsync()
+        {
+            if (!Session.EstConnecte)
+            {
+                GameVM.SudokuVisible = true;
+                return;
+            }
+
+            try
+            {
+                GameVM.SudokuVisible = await _sessions.EstAccessibleAsync(Session.Utilisateur!.DepartmentId, SeedData.SudokuGameId);
+            }
+            catch (Exception)
+            {
+                // Base injoignable : on laisse le jeu affiché, StartSudoku affichera l'erreur au clic
+                GameVM.SudokuVisible = true;
+            }
         }
 
         // Lancement du Sudoku après sélection de la difficulté
