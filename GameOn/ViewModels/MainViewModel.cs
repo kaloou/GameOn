@@ -16,8 +16,7 @@ namespace GameOn.ViewModels
         private readonly AuthService _auth = new AuthService();
         private readonly GameSessionService _sessions = new GameSessionService();
 
-        // TEMP : remplacer par le service de la personne 1 (une seule ligne à changer)
-        private readonly IDailyChallengeProvider _defis = new DefiTemporaireProvider();
+        private readonly IDailyChallengeProvider _defis = new DailyChallengeService();
 
         private BaseViewModel _currentViewModel;
 

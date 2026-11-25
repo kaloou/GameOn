@@ -10,7 +10,7 @@ public class SudokuEngine
 {
     public async Task<int[,]> GetSudokuBaseGridAsync(Difficulty difficulty)
     {
-        var apiResponse = await SudokuApi.GetSudokuPuzzleAsync(difficulty);
+        var apiResponse = await SudokuApi.GetSudokuPuzzleAsync(difficulty, DateTime.Today);
 
         var sudoku_grid = JsonToList(apiResponse, "puzzle");
 
@@ -19,7 +19,7 @@ public class SudokuEngine
     
     public async Task<int[,]> GetSudokuSolutionGridAsync(Difficulty difficulty)
     {
-        var apiResponse = await SudokuApi.GetSudokuPuzzleAsync(difficulty);
+        var apiResponse = await SudokuApi.GetSudokuPuzzleAsync(difficulty, DateTime.Today);
 
         var sudoku_grid = JsonToList(apiResponse, "solution");
 

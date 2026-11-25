@@ -123,17 +123,9 @@ namespace GameOn.ViewModels
                 UpdateTimer();
             };
 
-            // Si le mode est casual, passe la difficulté concernée
-            Difficulty gridDifficulty = difficulty switch
-            {
-                Difficulty.EASY_CASUAL => Difficulty.EASY,
-                Difficulty.MEDIUM_CASUAL => Difficulty.MEDIUM,
-                Difficulty.HARD_CASUAL => Difficulty.HARD,
-                _ => difficulty
-            };
-
-            // Reprend la partie du jour si elle existe, sinon charge une nouvelle grille
-            _ = StartGameAsync(gridDifficulty);
+            // Reprend la partie du jour si elle existe, sinon charge le défi du jour
+            // (casual et classé ont chacun leur propre défi)
+            _ = StartGameAsync();
 
             BackCommand = new RelaisCommande(retour);
         }
@@ -302,7 +294,7 @@ namespace GameOn.ViewModels
         // ===== Sauvegarde de la partie (Save a game) =====
 
         // Reprise de la partie du jour, ou création d'une nouvelle partie
-        private async Task StartGameAsync(Difficulty gridDifficulty)
+        private async Task StartGameAsync()
         {
             try
             {
@@ -331,15 +323,14 @@ namespace GameOn.ViewModels
                     return;
                 }
 
-                //await LoadSudokuAsync(gridDifficulty);
-                await LoadChallengeAsync(gridDifficulty);
+                await LoadChallengeAsync();
 
                 // la grille n'a pas pu être chargée
                 if (Cells.Count != 81) return;
 
                 GameSession newSession = await sessions.CreerPartieAsync(
                                 employeeId, SeedData.SudokuGameId, difficulty,
-                                challenge!.ChallengeId == 0 ? null : challenge.ChallengeId,  
+                                challenge!.ChallengeId,
                                 CreateSaveData().VersJson());
                 sessionId = newSession.SessionId;
                 startedAt = newSession.StartedAt;
@@ -510,9 +501,9 @@ namespace GameOn.ViewModels
         }
 
         // Charge la grille et la solution depuis le défi du jour (une seule source : grille et solution correspondent)
-        private async Task LoadChallengeAsync(Difficulty gridDifficulty)
+        private async Task LoadChallengeAsync()
         {
-            challenge = await challenges.ObtenirDefiDuJourAsync(gridDifficulty);
+            challenge = await challenges.ObtenirDefiDuJourAsync(difficulty);
 
             int[,] grid = sudokuEngine.JsonToList(challenge.ChallengeData, "puzzle");
             solutionGrid = sudokuEngine.JsonToList(challenge.ChallengeData, "solution");
