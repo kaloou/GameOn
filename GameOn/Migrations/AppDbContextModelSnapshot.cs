@@ -380,10 +380,6 @@ namespace GameOn.Migrations
                     b.Property<int?>("DailyChallengeId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Difficulty")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 

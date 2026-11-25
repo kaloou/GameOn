@@ -329,7 +329,7 @@ namespace GameOn.ViewModels
                 if (Cells.Count != 81) return;
 
                 GameSession newSession = await sessions.CreerPartieAsync(
-                                employeeId, SeedData.SudokuGameId, difficulty,
+                                employeeId, SeedData.SudokuGameId,
                                 challenge!.ChallengeId,
                                 CreateSaveData().VersJson());
                 sessionId = newSession.SessionId;
