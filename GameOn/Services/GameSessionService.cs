@@ -77,5 +77,22 @@ namespace GameOn.Services
                             && d.Games.Any(g => g.GameId == gameId));
         }
 
+        public async Task<GameSession> CreerPartieAsync(int employeeId, int gameId, Difficulty difficulty,
+                                                 int? dailyChallengeId, string gameData)
+        {
+            var session = new GameSession(0, gameData, difficulty, DateTime.Now, Status.STARTED)
+            {
+                EmployeeId = employeeId,
+                GameId = gameId,
+                DailyChallengeId = dailyChallengeId
+            };
+
+            using var context = new AppDbContext();
+            context.GameSessions.Add(session);
+            await context.SaveChangesAsync();
+
+            return session;
+        }
+
     }
 }

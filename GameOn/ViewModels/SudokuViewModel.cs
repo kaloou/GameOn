@@ -30,6 +30,10 @@ namespace GameOn.ViewModels
         // Sauvegarde de la partie 
         private readonly SessionService session;
         private readonly GameSessionService sessions;
+        private readonly IDailyChallengeProvider challenges;
+        private DailyChallenge? challenge;   // défi du jour chargé pour cette partie
+
+
         private readonly Difficulty difficulty;
         private int? sessionId;                   // null tant que la partie n'existe pas en base
         private bool saveInProgress;
@@ -102,7 +106,8 @@ namespace GameOn.ViewModels
         }
 
         // Initialisation des cases, du moteur sudoku et de la commande de retour
-        public SudokuViewModel(Action retour, Difficulty difficulty, SessionService session, GameSessionService sessions)
+        public SudokuViewModel(Action retour, Difficulty difficulty, SessionService session,
+                       GameSessionService sessions, IDailyChallengeProvider challenges)
         {
             Cells = new ObservableCollection<SudokuCell>();
             sudokuEngine = new SudokuEngine();
@@ -110,6 +115,7 @@ namespace GameOn.ViewModels
             this.session = session;
             this.sessions = sessions;
             this.difficulty = difficulty;
+            this.challenges = challenges;
 
             // Actualisation du chrono chaque seconde
             timer.Tick += (sender, e) =>
@@ -325,12 +331,16 @@ namespace GameOn.ViewModels
                     return;
                 }
 
-                await LoadSudokuAsync(gridDifficulty);
+                //await LoadSudokuAsync(gridDifficulty);
+                await LoadChallengeAsync(gridDifficulty);
 
                 // la grille n'a pas pu être chargée
                 if (Cells.Count != 81) return;
 
-                GameSession newSession = await sessions.CreerPartieAsync(employeeId, SeedData.SudokuGameId, difficulty, CreateSaveData().VersJson());
+                GameSession newSession = await sessions.CreerPartieAsync(
+                                employeeId, SeedData.SudokuGameId, difficulty,
+                                challenge!.ChallengeId == 0 ? null : challenge.ChallengeId,  
+                                CreateSaveData().VersJson());
                 sessionId = newSession.SessionId;
                 startedAt = newSession.StartedAt;
 
@@ -496,6 +506,25 @@ namespace GameOn.ViewModels
             finally
             {
                 saveInProgress = false;
+            }
+        }
+
+        // Charge la grille et la solution depuis le défi du jour (une seule source : grille et solution correspondent)
+        private async Task LoadChallengeAsync(Difficulty gridDifficulty)
+        {
+            challenge = await challenges.ObtenirDefiDuJourAsync(gridDifficulty);
+
+            int[,] grid = sudokuEngine.JsonToList(challenge.ChallengeData, "puzzle");
+            solutionGrid = sudokuEngine.JsonToList(challenge.ChallengeData, "solution");
+
+            Cells.Clear();
+            for (int row = 0; row < 9; row++)
+            {
+                for (int col = 0; col < 9; col++)
+                {
+                    int value = grid[row, col];
+                    AddCell(new SudokuCell(value, row, col, value == 0));
+                }
             }
         }
 

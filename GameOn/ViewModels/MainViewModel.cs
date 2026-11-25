@@ -16,6 +16,9 @@ namespace GameOn.ViewModels
         private readonly AuthService _auth = new AuthService();
         private readonly GameSessionService _sessions = new GameSessionService();
 
+        // TEMP : remplacer par le service de la personne 1 (une seule ligne à changer)
+        private readonly IDailyChallengeProvider _defis = new DefiTemporaireProvider();
+
         private BaseViewModel _currentViewModel;
 
         public LoginViewModel LoginVM { get; }
@@ -141,10 +144,11 @@ namespace GameOn.ViewModels
             if (window.ShowDialog() == true)
             {
                 SudokuVM = new SudokuViewModel(
-                    retour: () => CurrentViewModel = HomeVM,
-                    difficulty: window.SelectedDifficulty,
-                    session: Session,
-                    sessions: _sessions);
+                            retour: () => CurrentViewModel = HomeVM,
+                            difficulty: window.SelectedDifficulty,
+                            session: Session,
+                            sessions: _sessions,
+                            challenges: _defis);
                 OnPropertyChanged(nameof(SudokuVM));
                 CurrentViewModel = SudokuVM;
             }
