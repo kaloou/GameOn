@@ -9,7 +9,6 @@ namespace GameOn.Models.Sudoku
         private int challengeId;
         private DateTime date;
         private string challengeData = string.Empty;
-        // private Difficulty difficulty;
 
         public int ChallengeId
         {
@@ -29,17 +28,17 @@ namespace GameOn.Models.Sudoku
                 : throw new ArgumentException("ChallengeData cannot be null or empty");
         }
 
-        // Le Sudoku du défi
-        public int SudokuId { get; set; }
-        public Sudoku Sudoku { get; set; } = null!;
+        // Une grille différente par difficulté (casual compris)
+        public Difficulty Difficulty { get; set; }
 
         public List<GameSession> GameSessions { get; set; } = new();
 
-        public DailyChallenge(int challengeId, DateTime date, string challengeData)
+        public DailyChallenge(int challengeId, DateTime date, string challengeData, Difficulty difficulty)
         {
             ChallengeId = challengeId;
             Date = date;
             ChallengeData = challengeData;
+            Difficulty = difficulty;
         }
     }
 }
