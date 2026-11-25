@@ -7,38 +7,19 @@ namespace GameOn.Services
     public class GameSessionService
     {
 
+        // La partie du joueur sur le défi du jour de cette difficulté (la difficulté vient du DailyChallenge)
         public async Task<GameSession?> TrouverPartieDuJourAsync(int employeeId, int gameId, Difficulty difficulty)
         {
-            DateTime debutJournee = DateTime.Today;
-            DateTime finJournee = debutJournee.AddDays(1);
-
             using var context = new AppDbContext();
             return await context.GameSessions
                 .AsNoTracking()
                 .Where(s => s.EmployeeId == employeeId
                          && s.GameId == gameId
-                         && s.Difficulty == difficulty
-                         && s.Status != Status.EXPIRED // une partie terminée est renvoyée aussi : pas de 2e partie le même jour
-                         && s.StartedAt >= debutJournee
-                         && s.StartedAt < finJournee)
+                         && s.DailyChallenge!.Difficulty == difficulty
+                         && s.DailyChallenge.Date == DateTime.Today
+                         && s.Status != Status.EXPIRED) // une partie terminée est renvoyée aussi : pas de 2e partie le même jour
                 .OrderByDescending(s => s.StartedAt)
                 .FirstOrDefaultAsync();
-        }
-
-        // Nouvelle partie, avec l'état de départ de la grille
-        public async Task<GameSession> CreerPartieAsync(int employeeId, int gameId, Difficulty difficulty, string gameData)
-        {
-            var session = new GameSession(0, gameData, difficulty, DateTime.Now, Status.STARTED)
-            {
-                EmployeeId = employeeId,
-                GameId = gameId
-            };
-
-            using var context = new AppDbContext();
-            context.GameSessions.Add(session);
-            await context.SaveChangesAsync();
-
-            return session; // SessionId est rempli par MySQL après SaveChanges
         }
 
         // Enregistre l'état actuel 
@@ -75,10 +56,10 @@ namespace GameOn.Services
                             && d.Games.Any(g => g.GameId == gameId));
         }
 
-        public async Task<GameSession> CreerPartieAsync(int employeeId, int gameId, Difficulty difficulty,
-                                                 int? dailyChallengeId, string gameData)
+        // Nouvelle partie sur un défi du jour, avec l'état de départ de la grille
+        public async Task<GameSession> CreerPartieAsync(int employeeId, int gameId, int dailyChallengeId, string gameData)
         {
-            var session = new GameSession(0, gameData, difficulty, DateTime.Now, Status.STARTED)
+            var session = new GameSession(0, gameData, DateTime.Now, Status.STARTED)
             {
                 EmployeeId = employeeId,
                 GameId = gameId,
@@ -89,7 +70,7 @@ namespace GameOn.Services
             context.GameSessions.Add(session);
             await context.SaveChangesAsync();
 
-            return session;
+            return session; // SessionId est rempli par MySQL après SaveChanges
         }
 
     }

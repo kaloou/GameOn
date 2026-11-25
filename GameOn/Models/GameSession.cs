@@ -10,7 +10,6 @@ namespace GameOn.Models
     {
         public int SessionId { get; set; }
         public string GameData { get; set; } = string.Empty;
-        public Difficulty Difficulty { get; set; }
         public DateTime StartedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
         public Status Status { get; set; }
@@ -21,18 +20,17 @@ namespace GameOn.Models
         public int GameId { get; set; }
         public Game Game { get; set; } = null!;
 
+        // La difficulté de la partie est celle de son défi du jour
+        // (nullable : les parties créées avant les défis en base n'en ont pas)
         public int? DailyChallengeId { get; set; }
         public DailyChallenge? DailyChallenge { get; set; }
 
         public GameScore? GameScore { get; set; }
 
-        public GameSession(int sessionId, string gameData,
-                   Difficulty difficulty, DateTime startedAt,
-                   Status status)
+        public GameSession(int sessionId, string gameData, DateTime startedAt, Status status)
         {
             SessionId = sessionId;
             GameData = gameData;
-            Difficulty = difficulty;
             StartedAt = startedAt;
             Status = status;
         }
